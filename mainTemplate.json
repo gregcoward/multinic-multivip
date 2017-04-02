@@ -51,11 +51,11 @@
     },
     "imageName": {
       "allowedValues": [
-        "Good",
-        "Better",
-        "Best"
+        "good",
+        "better",
+        "best"
       ],
-      "defaultValue": "Good",
+      "defaultValue": "good",
       "metadata": {
         "description": "F5 SKU(IMAGE) to Deploy, only relevant for hourly billing."
       },
