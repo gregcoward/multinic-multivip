@@ -2,18 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "baseUrl": {
+    "byolOrHourly": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/gregcoward/wafscale/master/byol",
+      "defaultValue": "hourly",
+      "allowedValues": [ "hourly", "byol" ],
       "metadata": {
-        "description": "The base URL for marketplace deployment.",
-        "artifactsBaseUrl": ""
-      }
-    },
-    "solutionDeploymentName": {
-      "type": "string",
-      "metadata": {
-        "description": "A unique name for this deployment."
+        "description": "The number of Web Application Firewalls that will be deployed in front of your application."
       }
     },
     "numberOfInstances": {
@@ -25,17 +19,15 @@
       }
     },
     "instanceType": {
-      "type": "string",
-      "defaultValue": "Standard_D3",
-      "metadata": {
-        "description": "The size of the Virtual Hardware Instance."
-      },
       "allowedValues": [
+        "Standard_A2",
         "Standard_A3",
         "Standard_A4",
         "Standard_A5",
         "Standard_A6",
         "Standard_A7",
+        "Standard_A8",
+        "Standard_A9",
         "Standard_D2",
         "Standard_D3",
         "Standard_D4",
@@ -51,9 +43,28 @@
         "Standard_D12_v2",
         "Standard_D13_v2",
         "Standard_D14_v2",
+        "Standard_D15_v2",
         "Standard_F2",
-        "Standard_F4"
-      ]
+        "Standard_F4",
+        "Standard_F8"
+      ],
+      "defaultValue": "Standard_D2_v2",
+      "metadata": {
+        "description": "Size of the VM"
+      },
+      "type": "string"
+    },
+    "imageName": {
+      "allowedValues": [
+        "Good",
+        "Better",
+        "Best"
+      ],
+      "defaultValue": "Good",
+      "metadata": {
+        "description": "F5 SKU(IMAGE) to Deploy, only relevantfor BYOL"
+      },
+      "type": "string"
     },
     "adminUsername": {
       "type": "string",
@@ -79,20 +90,21 @@
       "type": "string",
       "defaultValue": "dnslabel",
       "metadata": {
-        "description": "Unique DNS name for the Public IP used to access the Web Application Firewalls for management."
+        "description": "Unique DNS name prefix for the Public IP used to access bigip management."
       }
     },
     "licenseKey1": {
       "type": "string",
+      "defaultValue": "NOT_SPECIFIED",
       "metadata": {
-        "description": "The license token for the first F5 Web Application Firewall."
+        "description": "The license token for the first F5 BYOL instance, (if applicable)."
       }
     },
     "licenseKey2": {
       "type": "string",
       "defaultValue": "NOT_SPECIFIED",
       "metadata": {
-        "description": "The license token for the second F5 Web Application Firewall (if applicable)."
+        "description": "The license token for the second F5 BYOL instance, (if applicable)."
       }
     },
     "numCopies": {
@@ -111,113 +123,6 @@
         "description": "The number of VS/WAF copies to deploy for purposes of load testing, Selection limited to 1, 2, 10, 25, or 50 instances."
       }
     },
-    "applicationProtocols": {
-      "type": "string",
-      "defaultValue": "http-https",
-      "metadata": {
-        "description": "The protocol(s) used by your application."
-      },
-      "allowedValues": [
-        "http",
-        "https",
-        "http-https",
-        "https-offload"
-      ]
-    },
-    "applicationAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The public IP address or DNS FQDN of the application that this WAF will protect."
-      }
-    },
-    "applicationServiceFqdn": {
-      "type": "string",
-      "defaultValue": "NOT_SPECIFIED",
-      "metadata": {
-        "description": "If deploying in front of an Azure App Service, the FQDN of the public application."
-      }
-    },
-    "applicationPort": {
-      "type": "string",
-      "defaultValue": "80",
-      "metadata": {
-        "description": "If deploying an HTTP application, the port on which your service listens for unencrypted traffic. This field is not required when deploying https only."
-      }
-    },
-    "applicationSecurePort": {
-      "type": "string",
-      "defaultValue": "443",
-      "metadata": {
-        "description": "If deploying an HTTPS application, the port on which your service listens for encrypted traffic. This field is not required when deploying http only."
-      }
-    },
-    "sslCert": {
-      "type": "string",
-      "defaultValue": "NOT_SPECIFIED",
-      "metadata": {
-        "description": "The SSL certificate .pfx file corresponding to public facing VIP."
-      }
-    },
-    "sslPswd": {
-      "type": "securestring",
-      "defaultValue": "NOT_SPECIFIED",
-      "metadata": {
-        "description": "The SSL certificate .pfx file corresponding to public facing VIP."
-      }
-    },
-    "applicationType": {
-      "type": "string",
-      "defaultValue": "apache",
-      "metadata": {
-        "description": "Is your application running on a Linux OS or a Windows OS?"
-      },
-      "allowedValues": [
-        "apache",
-        "iis",
-        "nginx",
-        "magento",
-        "woo",
-        "big",
-        "volusion",
-        "miva",
-        "shopify",
-        "demandware",
-        "os",
-        "shop",
-        "wordpress",
-        "drupal",
-        "joomla",
-        "blogger",
-        "vbulletin",
-        "expression",
-        "dnn",
-        "adobecq",
-        "ektron",
-        "sharepoint",
-        "cms"
-      ]
-    },
-    "blockingLevel": {
-      "type": "string",
-      "defaultValue": "medium",
-      "metadata": {
-        "description": "Please select how aggressive you would like the blocking level of this WAF to be.  Remember that the more aggressive the blocking level, the more potential there is for false-positives that the WAF might detect. Select Custom to specify your own security policy below."
-      },
-      "allowedValues": [
-        "low",
-        "medium",
-        "high",
-        "off",
-        "custom"
-      ]
-    },
-    "customPolicy": {
-      "type": "string",
-      "defaultValue": "NOT_SPECIFIED",
-      "metadata": {
-        "description": "Specify the publicly available URL of a custom ASM security policy in XML format. This policy will be applied in place of the standard High/Medium/Low policy as indicated above."
-      }
-    },
     "restrictedSrcAddress": {
       "type": "string",
       "defaultValue": "*",
@@ -228,6 +133,8 @@
   },
   "variables": {
     "location": "[resourceGroup().location]",
+    "bigIpVersion": "latest",
+    "baseUrl": "https://raw.githubusercontent.com/gregcoward/wafscale/master/byol",
     "newStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'st')), 'st')]",
     "diagStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'diag')), 'diag')]",
     "f5NamePrefix": "[concat(parameters('dnsLabel'),'-bigip')]",
@@ -235,7 +142,7 @@
     "apiVersionNetwork": "2015-06-15",
     "apiVersionStorage": "2015-06-15",
     "apiVersionTemplate": "2015-01-01",
-    "bigipTemplateLink": "[concat(parameters('baseUrl'), '/bigip', parameters('numCopies'), 'vip.json')]",
+    "bigipTemplateLink": "[concat(variables('baseUrl'), '/bigip-',parameters('byolOrHourly'), parameters('numCopies'), 'vip.json')]",
     "virtualNetworkName": "[concat(parameters('dnsLabel'),'-vnet1')]",
     "vnetAddressPrefix": "10.10.0.0/16",
     "mgmtSubnetName": "mgmt",
@@ -255,78 +162,6 @@
     "availabilitySetName": "[concat(parameters('dnsLabel'),'-as')]",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('dnsLabel'),'-nsg'))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-    "appTypeMap": {
-      "iis": {
-        "type": "windows"
-      },
-      "apache": {
-        "type": "linux"
-      },
-      "nginx": {
-        "type": "linux"
-      },
-      "magento": {
-        "type": "linux"
-      },
-      "woo": {
-        "type": "linux"
-      },
-      "big": {
-        "type": "linux"
-      },
-      "volusion": {
-        "type": "linux"
-      },
-      "miva": {
-        "type": "linux"
-      },
-      "shopify": {
-        "type": "linux"
-      },
-      "demandware": {
-        "type": "linux"
-      },
-      "os": {
-        "type": "linux"
-      },
-      "shop": {
-        "type": "linux"
-      },
-      "wordpress": {
-        "type": "linux"
-      },
-      "drupal": {
-        "type": "linux"
-      },
-      "joomla": {
-        "type": "linux"
-      },
-      "blogger": {
-        "type": "linux"
-      },
-      "vbulletin": {
-        "type": "linux"
-      },
-      "expression": {
-        "type": "linux"
-      },
-      "dnn": {
-        "type": "linux"
-      },
-      "adobecq": {
-        "type": "linux"
-      },
-      "ektron": {
-        "type": "linux"
-      },
-      "sharepoint": {
-        "type": "windows"
-      },
-      "cms": {
-        "type": "linux"
-      }
-    },
-    "appType": "[variables('appTypeMap')[parameters('applicationType')].type]",
     "instanceTypeMap": {
       "Standard_A3": {
         "storageAccountType": "Standard_LRS"
@@ -478,200 +313,196 @@
       "Standard_GS5": {
         "storageAccountType": "Premium_LRS"
       }
-    },
-    "commandArgs": "[concat('-m ', parameters('applicationProtocols'), ' -d ', parameters('solutionDeploymentName'), ' -n ', parameters('applicationAddress'), ' -j 880 -k 8445 -h ', parameters('applicationPort'), ' -s ', parameters('applicationSecurePort'), ' -t ', toLower(variables('appType')), ' -l ', toLower(parameters('blockingLevel')), ' -a ', parameters('customPolicy'), ' -c ', parameters('sslCert'), ' -r ', parameters('sslPswd'), ' -o ', parameters('applicationServiceFqdn'), ' -u ', parameters('adminUsername'), ' -q ', parameters('numCopies'))]"
+    }
   },
-  "resources": [
-    {
-      "name": "[variables('diagStorageAccountName')]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "StorageAccount"
+    "resources": [
+      {
+        "name": "[variables('diagStorageAccountName')]",
+        "type": "Microsoft.Storage/storageAccounts",
+        "location": "[variables('location')]",
+        "tags": {
+          "displayName": "StorageAccount"
+        },
+        "apiVersion": "[variables('apiVersionStorage')]",
+        "properties": {
+          "accountType": "[variables('instanceTypeMap')[parameters('instanceType')].storageAccountType]" 
+        }
       },
-      "apiVersion": "[variables('apiVersionStorage')]",
-      "properties": {
-        "accountType": "Standard_LRS"
-      }
-    },
-    {
-      "name": "[variables('newStorageAccountName')]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "StorageAccount"
+      {
+        "name": "[variables('newStorageAccountName')]",
+        "type": "Microsoft.Storage/storageAccounts",
+        "location": "[variables('location')]",
+        "tags": {
+          "displayName": "StorageAccount"
+        },
+        "apiVersion": "[variables('apiVersionStorage')]",
+        "properties": {
+          "accountType": "[variables('instanceTypeMap')[parameters('instanceType')].storageAccountType]"
+        }
       },
-      "apiVersion": "[variables('apiVersionStorage')]",
-      "properties": {
-        "accountType": "[variables('instanceTypeMap')[parameters('instanceType')].storageAccountType]"
-      }
-    },
-    {
-      "apiVersion": "[variables('apiVersionNetwork')]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "VirtualNetwork"
-      },
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('vnetAddressPrefix')]"
+      {
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[variables('virtualNetworkName')]",
+        "location": "[variables('location')]",
+        "tags": {
+          "displayName": "VirtualNetwork"
+        },
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[variables('vnetAddressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[variables('mgmtSubnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('mgmtSubnetPrefix')]"
+              }
+            },
+            {
+              "name": "[variables('intSubnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('intSubnetPrefix')]"
+              }
+            },
+            {
+              "name": "[variables('extSubnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('extSubnetPrefix')]"
+              }
+            }
           ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('mgmtSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('mgmtSubnetPrefix')]"
-            }
-          },
-          {
-            "name": "[variables('intSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('intSubnetPrefix')]"
-            }
-          },
-          {
-            "name": "[variables('extSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('extSubnetPrefix')]"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables('apiVersionCompute')]",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "AvailabilitySet"
+        }
       },
-      "name": "[variables('availabilitySetName')]",
-      "type": "Microsoft.Compute/availabilitySets"
-    },
-    {
-      "apiVersion": "[variables('apiVersionNetwork')]",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[concat(parameters('dnsLabel'), '-nsg')]",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "NetworkSecurityGroup"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "mgmt_allow_443",
-            "properties": {
-              "description": "",
-              "priority": 101,
-              "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "443",
-              "protocol": "TCP",
-              "direction": "Inbound",
-              "access": "Allow"
-            }
-          },
-          {
-            "name": "ssh_allow_22",
-            "properties": {
-              "description": "",
-              "priority": 102,
-              "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "22",
-              "protocol": "TCP",
-              "direction": "Inbound",
-              "access": "Allow"
-            }
-          },
-          {
-            "name": "app_allow_880",
-            "properties": {
-              "description": "",
-              "priority": 103,
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "880",
-              "protocol": "TCP",
-              "direction": "Inbound",
-              "access": "Allow"
-            }
-          },
-          {
-            "name": "app_allow_8445",
-            "properties": {
-              "description": "",
-              "priority": 104,
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "8445",
-              "protocol": "TCP",
-              "direction": "Inbound",
-              "access": "Allow"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables('apiVersionTemplate')]",
-      "name": "linkedTemplate",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))]"
-      ],
-      "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "uri": "[variables('bigipTemplateLink')]",
-          "contentVersion": "1.0.0.0"
+      {
+        "apiVersion": "[variables('apiVersionCompute')]",
+        "location": "[variables('location')]",
+        "tags": {
+          "displayName": "AvailabilitySet"
         },
-        "parameters": {
-          "f5NamePrefix": { "value": "[variables('f5NamePrefix')]" },
-          "mgmtIpAddress": { "value": "[variables('mgmtIpAddress')]" },
-          "mgmtSubnetRef": { "value": "[variables('mgmtSubnetRef')]" },
-          "intIpAddress": { "value": "[variables('intIpAddress')]" },
-          "intSubnetRef": { "value": "[variables('intSubnetRef')]" },
-          "extIpAddress": { "value": "[variables('extIpAddress')]" },
-          "extSubnetRef": { "value": "[variables('extSubnetRef')]" },
-          "nicNamePrefix": { "value": "[variables('nicNamePrefix')]" },
-          "nsgID": { "value": "[variables('nsgID')]" },
-          "apiVersionCompute": { "value": "[variables('apiVersionCompute')]" },
-          "apiVersionNetwork": { "value": "[variables('apiVersionNetwork')]" },
-          "apiVersionStorage": { "value": "[variables('apiVersionStorage')]" },
-          "numberOfInstances": { "value": "[parameters('numberOfInstances')]" },
-          "numCopies": { "value": "[parameters('numberOfInstances')]" },
-          "baseUrl": { "value": "[parameters('baseUrl')]" },
-          "location": { "value": "[variables('location')]" },
-          "licenseKey1": { "value": "[parameters('licenseKey1')]" },
-          "licenseKey2": { "value": "[parameters('licenseKey2')]" },
-          "instanceType": { "value": "[parameters('instanceType')]" },
-          "adminUsername": { "value": "[parameters('adminUsername')]" },
-          "adminPassword": { "value": "[parameters('adminPassword')]" },
-          "dnsLabel": { "value": "[parameters('dnsLabel')]" },
-          "commandArgs": { "value": "[variables('commandArgs')]" },
-          "loadBalancerName": { "value": "[variables('loadbalancerName')]" },
-          "publicIPName": { "value": "[parameters('publicIPName')]" },
-          "applicationPort": { "value": "[parameters('applicationPort')]" },
-          "applicationSecureport": { "value": "[parameters('applicationSecureport')]" },
-          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
-          "availabilitySetName": { "value": "[variables('availabilitySetName')]" },
-          "newStorageAccountName": { "value": "[variables('newStorageAccountName')]" },
-          "diagStorageAccountName": { "value": "[variables('diagStorageAccountName')]" }
+        "name": "[variables('availabilitySetName')]",
+        "type": "Microsoft.Compute/availabilitySets"
+      },
+      {
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[concat(parameters('dnsLabel'), '-nsg')]",
+        "location": "[variables('location')]",
+        "tags": {
+          "displayName": "NetworkSecurityGroup"
+        },
+        "properties": {
+          "securityRules": [
+            {
+              "name": "mgmt_allow_443",
+              "properties": {
+                "description": "",
+                "priority": 101,
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "443",
+                "protocol": "TCP",
+                "direction": "Inbound",
+                "access": "Allow"
+              }
+            },
+            {
+              "name": "ssh_allow_22",
+              "properties": {
+                "description": "",
+                "priority": 102,
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "22",
+                "protocol": "TCP",
+                "direction": "Inbound",
+                "access": "Allow"
+              }
+            },
+            {
+              "name": "app_allow_880",
+              "properties": {
+                "description": "",
+                "priority": 103,
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "880",
+                "protocol": "TCP",
+                "direction": "Inbound",
+                "access": "Allow"
+              }
+            },
+            {
+              "name": "app_allow_8445",
+              "properties": {
+                "description": "",
+                "priority": 104,
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "8445",
+                "protocol": "TCP",
+                "direction": "Inbound",
+                "access": "Allow"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "[variables('apiVersionTemplate')]",
+        "name": "linkedTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "dependsOn": [
+          "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+          "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
+          "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
+          "[concat('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))]"
+        ],
+        "properties": {
+          "mode": "incremental",
+          "templateLink": {
+            "uri": "[variables('bigipTemplateLink')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "f5NamePrefix": { "value": "[variables('f5NamePrefix')]" },
+            "mgmtIpAddress": { "value": "[variables('mgmtIpAddress')]" },
+            "mgmtSubnetRef": { "value": "[variables('mgmtSubnetRef')]" },
+            "intIpAddress": { "value": "[variables('intIpAddress')]" },
+            "intSubnetRef": { "value": "[variables('intSubnetRef')]" },
+            "extIpAddress": { "value": "[variables('extIpAddress')]" },
+            "extSubnetRef": { "value": "[variables('extSubnetRef')]" },
+            "nicNamePrefix": { "value": "[variables('nicNamePrefix')]" },
+            "nsgID": { "value": "[variables('nsgID')]" },
+            "apiVersionCompute": { "value": "[variables('apiVersionCompute')]" },
+            "apiVersionNetwork": { "value": "[variables('apiVersionNetwork')]" },
+            "apiVersionStorage": { "value": "[variables('apiVersionStorage')]" },
+            "numberOfInstances": { "value": "[parameters('numberOfInstances')]" },
+            "numCopies": { "value": "[parameters('numberOfInstances')]" },
+            "baseUrl": { "value": "[variables('baseUrl')]" },
+            "location": { "value": "[variables('location')]" },
+            "licenseKey1": { "value": "[parameters('licenseKey1')]" },
+            "licenseKey2": { "value": "[parameters('licenseKey2')]" },
+            "instanceType": { "value": "[parameters('instanceType')]" },
+            "adminUsername": { "value": "[parameters('adminUsername')]" },
+            "adminPassword": { "value": "[parameters('adminPassword')]" },
+            "dnsLabel": { "value": "[parameters('dnsLabel')]" },
+            "loadBalancerName": { "value": "[variables('loadbalancerName')]" },
+            "publicIPName": { "value": "[parameters('publicIPName')]" },
+            "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+            "availabilitySetName": { "value": "[variables('availabilitySetName')]" },
+            "newStorageAccountName": { "value": "[variables('newStorageAccountName')]" },
+            "diagStorageAccountName": { "value": "[variables('diagStorageAccountName')]" },
+            "imageName": { "value": "[parameters('imageName')]" }
+          }
         }
       }
-    }
-  ],
-      "outputs": {
-      }
-    }
+    ],
+    "outputs": {}
+  }
