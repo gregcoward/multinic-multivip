@@ -130,13 +130,13 @@
     "baseUrl": "https://raw.githubusercontent.com/gregcoward/multinic-multivip/master",
     "newStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'st')), 'st')]",
     "diagStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'diag')), 'diag')]",
-    "f5NamePrefix": "[concat(parameters('dnsLabel'),'-bigip')]",
+    "f5NamePrefix": "[concat(parameters('publicIpName'),'-bigip')]",
     "apiVersionCompute": "2016-03-30",
     "apiVersionNetwork": "2015-06-15",
     "apiVersionStorage": "2015-06-15",
     "apiVersionTemplate": "2015-01-01",
     "bigipTemplateLink": "[concat(variables('baseUrl'), '/bigip-',parameters('byolOrHourly'), parameters('numCopies'), 'vip.json')]",
-    "virtualNetworkName": "[concat(parameters('dnsLabel'),'-vnet1')]",
+    "virtualNetworkName": "VNet",
     "vnetAddressPrefix": "10.10.0.0/16",
     "mgmtSubnetName": "mgmt",
     "mgmtSubnetPrefix": "10.10.1.0/24",
@@ -150,10 +150,10 @@
     "extSubnetPrefix": "10.10.3.0/24",
     "extIpAddress": "10.10.3.",
     "extsubnetRef": "[concat(variables('vnetID'),'/subnets/',variables('extSubnetName'))]",
-    "nicNamePrefix": "[concat(parameters('dnsLabel'),'-nic')]",
-    "loadBalancerName": "[concat(parameters('dnsLabel'),'-lb')]",
-    "availabilitySetName": "[concat(parameters('dnsLabel'),'-as')]",
-    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('dnsLabel'),'-nsg'))]",
+    "nicNamePrefix": "[concat(parameters('publicIpName'),'-nic')]",
+    "loadBalancerName": "[concat(parameters('publicIpName'),'-lb')]",
+    "availabilitySetName": "[concat(parameters('publicIpName'),'-as')]",
+    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('publicIpName'),'-nsg'))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "instanceTypeMap": {
       "Standard_A3": {
@@ -381,7 +381,7 @@
       {
         "apiVersion": "[variables('apiVersionNetwork')]",
         "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[concat(parameters('dnsLabel'), '-nsg')]",
+        "name": "[concat(parameters('publicIpName'), '-nsg')]",
         "location": "[variables('location')]",
         "tags": {
           "displayName": "NetworkSecurityGroup"
