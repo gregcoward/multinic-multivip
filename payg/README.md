@@ -1,1 +1,0 @@
-Tier 2 WAF PAYG Readme

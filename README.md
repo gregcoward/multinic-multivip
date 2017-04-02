@@ -1,1 +1,1 @@
-Tier 2 WAF Readme
+Tier 2 WAF BYOL Readme
