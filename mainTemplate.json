@@ -134,7 +134,7 @@
   "variables": {
     "location": "[resourceGroup().location]",
     "bigIpVersion": "latest",
-    "baseUrl": "https://raw.githubusercontent.com/gregcoward/wafscale/master/byol",
+    "baseUrl": "https://raw.githubusercontent.com/gregcoward/multinic-multivip/master",
     "newStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'st')), 'st')]",
     "diagStorageAccountName": "[concat(uniquestring(concat(resourceGroup().id, 'diag')), 'diag')]",
     "f5NamePrefix": "[concat(parameters('dnsLabel'),'-bigip')]",
