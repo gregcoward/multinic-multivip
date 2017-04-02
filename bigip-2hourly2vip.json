@@ -119,9 +119,9 @@
     "sshMgtID": "[concat(variables('lbID'),'/inboundNatRules/sshmgt')]",
     "singleQuote": "'",
     "defaultGw": "[concat(parameters('extIpAddress'),'1')]",
-    "imageName": "[concat('f5-bigip-virtual-edition-', parameters('imageName'),'-best-hourly')]",
+    "imageName": "[concat('f5-bigip-virtual-edition-', toLower(parameters('imageName')),'-best-hourly')]",
     "imageNameToLower": "[toLower(parameters('imageName'))]", 
-    "skuToUse": "[concat('f5-bigip-virtual-edition-', parameters('licensedBandwidth'), '-', variables('imageNameToLower'),'-hourly')]", 
+    "skuToUse": "[concat('f5-bigip-virtual-edition-', parameters('licensedBandwidth'), '-', variables('imageNameToLower'),'-hourly')]" 
   },
   "resources": [
     {
@@ -487,7 +487,7 @@
         "[concat('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'),'-data-',copyindex(1))]"
       ],
       "plan": {
-        "name": "[variables('imageName')]",
+        "name":  "[variables('skuToUse')]", 
         "publisher": "f5-networks",
         "product": "f5-big-ip-hourly"
       },
