@@ -205,7 +205,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -223,7 +223,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data2')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -232,7 +232,7 @@
             }
           },
           {
-            "Name": "data1-http-8445",
+            "Name": "data1-http-443",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data1')]"
@@ -241,7 +241,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
@@ -250,7 +250,7 @@
             }
           },
           {
-            "Name": "data2-http-8445",
+            "Name": "data2-http-443",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data2')]"
@@ -259,7 +259,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data2')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
