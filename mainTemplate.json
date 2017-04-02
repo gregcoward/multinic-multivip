@@ -86,13 +86,6 @@
         "description": "Unique name for the Public IP used to access the Web Application Firewalls for management."
       }
     },
-    "dnsLabel": {
-      "type": "string",
-      "defaultValue": "dnslabel",
-      "metadata": {
-        "description": "Unique DNS name prefix for the Public IP used to access bigip management."
-      }
-    },
     "licenseKey1": {
       "type": "string",
       "defaultValue": "NOT_SPECIFIED",
