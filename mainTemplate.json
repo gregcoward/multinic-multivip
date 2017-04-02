@@ -130,7 +130,7 @@
     "apiVersionNetwork": "2015-06-15",
     "apiVersionStorage": "2015-06-15",
     "apiVersionTemplate": "2015-01-01",
-    "bigipTemplateLink": "[concat(variables('baseUrl'), '/bigip-',parameters('byolOrHourly'), parameters('numCopies'), 'vip.json')]",
+    "bigipTemplateLink": "[concat(variables('baseUrl'), '/bigip-',parameters('numberOfInstances'),parameters('byolOrHourly'), parameters('numCopies'), 'vip.json')]",
     "virtualNetworkName": "VNet",
     "vnetAddressPrefix": "10.10.0.0/16",
     "mgmtSubnetName": "mgmt",
