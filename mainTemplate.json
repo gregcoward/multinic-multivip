@@ -396,14 +396,14 @@
         "properties": {
           "securityRules": [
             {
-              "name": "mgmt_allow_443",
+              "name": "mgmt_allow_8443",
               "properties": {
                 "description": "",
                 "priority": 101,
                 "sourceAddressPrefix": "[parameters('restrictedSrcAddress')]",
                 "sourcePortRange": "*",
                 "destinationAddressPrefix": "*",
-                "destinationPortRange": "443",
+                "destinationPortRange": "8443",
                 "protocol": "TCP",
                 "direction": "Inbound",
                 "access": "Allow"
@@ -424,28 +424,28 @@
               }
             },
             {
-              "name": "app_allow_880",
+              "name": "app_allow_80",
               "properties": {
                 "description": "",
                 "priority": 103,
                 "sourceAddressPrefix": "*",
                 "sourcePortRange": "*",
                 "destinationAddressPrefix": "*",
-                "destinationPortRange": "880",
+                "destinationPortRange": "80",
                 "protocol": "TCP",
                 "direction": "Inbound",
                 "access": "Allow"
               }
             },
             {
-              "name": "app_allow_8445",
+              "name": "app_allow_443",
               "properties": {
                 "description": "",
                 "priority": 104,
                 "sourceAddressPrefix": "*",
                 "sourcePortRange": "*",
                 "destinationAddressPrefix": "*",
-                "destinationPortRange": "8445",
+                "destinationPortRange": "443",
                 "protocol": "TCP",
                 "direction": "Inbound",
                 "access": "Allow"
@@ -492,7 +492,6 @@
             "instanceType": { "value": "[parameters('instanceType')]" },
             "adminUsername": { "value": "[parameters('adminUsername')]" },
             "adminPassword": { "value": "[parameters('adminPassword')]" },
-            "dnsLabel": { "value": "[parameters('dnsLabel')]" },
             "loadBalancerName": { "value": "[variables('loadbalancerName')]" },
             "publicIPName": { "value": "[parameters('publicIPName')]" },
             "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },

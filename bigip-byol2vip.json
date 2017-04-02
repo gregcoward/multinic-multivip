@@ -50,10 +50,7 @@
     "adminPassword": {
       "type": "securestring"
     },
-    "dnsLabel": {
-      "type": "string"
-    },
-    "commandArgs": {
+    "publicIpName": {
       "type": "string"
     },
     "mgmtIpAddress": {
@@ -89,13 +86,7 @@
     "loadBalancerName": {
       "type": "string"
     },
-    "publicIPName": {
-      "type": "string"
-    },
-    "applicationPort": {
-      "type": "string"
-    },
-    "applicationSecureport": {
+    "imageName": {
       "type": "string"
     },
     "virtualNetworkName": {
@@ -150,7 +141,7 @@
         "idleTimeoutInMinutes": 30,
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[concat(parameters('dnsLabel'),copyindex(1))]"
+          "domainNameLabel": "[concat(parameters('publicIPName'),'-',copyindex(1))]"
         }
       }
     },
@@ -205,7 +196,7 @@
         ],
         "loadBalancingRules": [
           {
-            "Name": "data1-http-880",
+            "Name": "data1-http-80",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data1')]"
@@ -217,13 +208,13 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
               },
               "protocol": "Tcp",
-              "frontendPort": "[parameters('applicationPort')]",
-              "backendPort": 880,
+              "frontendPort": 80,
+              "backendPort": 80,
               "idleTimeoutInMinutes": 15
             }
           },
           {
-            "Name": "data2-http-880",
+            "Name": "data2-http-80",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data2')]"
@@ -235,8 +226,8 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
               },
               "protocol": "Tcp",
-              "frontendPort": "[parameters('applicationPort')]",
-              "backendPort": 880,
+              "frontendPort": 80,
+              "backendPort": 80,
               "idleTimeoutInMinutes": 15
             }
           },
@@ -253,8 +244,8 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
               },
               "protocol": "Tcp",
-              "frontendPort": "[parameters('applicationSecurePort')]",
-              "backendPort": 8445,
+              "frontendPort": 443,
+              "backendPort": 443,
               "idleTimeoutInMinutes": 15
             }
           },
@@ -271,8 +262,8 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
               },
               "protocol": "Tcp",
-              "frontendPort": "[parameters('applicationSecurePort')]",
-              "backendPort": 8445,
+              "frontendPort": 443,
+              "backendPort": 443,
               "idleTimeoutInMinutes": 15
             }
           }
@@ -281,20 +272,20 @@
           {
             "properties": {
               "protocol": "Tcp",
-              "port": 880,
+              "port": 80,
               "intervalInSeconds": 15,
               "numberOfProbes": 2
             },
-            "name": "tcp-880"
+            "name": "tcp-80"
           },
           {
             "properties": {
               "protocol": "Tcp",
-              "port": 8445,
+              "port": 443,
               "intervalInSeconds": 15,
               "numberOfProbes": 2
             },
-            "name": "tcp-8445"
+            "name": "tcp-443"
           }
         ]
       }
@@ -317,7 +308,7 @@
         },
         "protocol": "tcp",
         "frontendPort": "[copyIndex(8443)]",
-        "backendPort": 443,
+        "backendPort": 8443,
         "enableFloatingIP": false
       }
     },
