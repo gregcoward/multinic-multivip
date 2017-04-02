@@ -1,0 +1,497 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "apiVersionCompute": {
+      "type": "string",
+      "metadata": {
+        "description": "The compute api version"
+      }
+    },
+    "apiVersionNetwork": {
+      "type": "string",
+      "metadata": {
+        "description": "The network api version"
+      }
+    },
+    "apiVersionStorage": {
+      "type": "string",
+      "metadata": {
+        "description": "The storage api version"
+      }
+    },
+    "f5NamePrefix": {
+      "type": "string"
+    },
+    "baseUrl": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "instanceType": {
+      "type": "string"
+    },
+    "licenseKey1": {
+      "type": "string"
+    },
+    "licenseKey2": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dnsLabel": {
+      "type": "string"
+    },
+    "commandArgs": {
+      "type": "string"
+    },
+    "mgmtIpAddress": {
+      "type": ""
+    },
+    "mgmtSubnetRef": {
+      "type": ""
+    },
+    "intIpAddress": {
+      "type": ""
+    },
+    "intSubnetRef": {
+      "type": ""
+    },
+    "extIpAddress": {
+      "type": ""
+    },
+    "extSubnetRef": {
+      "type": ""
+    },
+    "ipAddress": {
+      "type": ""
+    },
+    "nicNamePrefix": {
+      "type": "string"
+    },
+    "subnetRef": {
+      "type": "string"
+    },
+    "nsgID": {
+      "type": "string"
+    },
+    "lbID": {
+      "type": "string"
+    },
+    "numberOfInstances": {
+      "type": "string"
+    },
+    "numCopies": {
+      "type": "string"
+    },
+    "loadBalancerName": {
+      "type": "string"
+    },
+    "publicIPName": {
+      "type": "string"
+    },
+    "applicationPort": {
+      "type": "string"
+    },
+    "applicationSecureport": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "availabilitySetName": {
+      "type": "string"
+    },
+    "newStorageAccountName": {
+      "type": "string"
+    },
+    "diagStorageAccountName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "publicIPID1": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIpName'),'-1')]",
+    "publicIPID2": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIpName'),'-2')]",
+    "publicIPID3": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIpName'),'-3')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "copy": {
+        "count": "[add(parameters('numCopies'), 1)]",
+        "name": "copycount"
+      },
+      "name": "[concat(parameters('publicIpName'),'-',copyIndex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 30,
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('dnsLabel'),copyindex(1))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-', add(parameters('numCopies'),1))]"
+      ],
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "LoadBalancer"
+      },
+      "name": "[parameters('loadBalancerName')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd-mgmt",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID1')]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd-data1",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID2')]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd-data2",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID3')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackEnd-mgmt"
+          },
+          {
+            "name": "loadBalancerBackEnd-data1"
+          },
+          {
+            "name": "loadBalancerBackEnd-data2"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "Name": "data1-http-880",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data1')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": "[parameters('applicationPort')]",
+              "backendPort": 880,
+              "idleTimeoutInMinutes": 15
+            }
+          },
+          {
+            "Name": "data2-http-880",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data2')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data2')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-880')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": "[parameters('applicationPort')]",
+              "backendPort": 880,
+              "idleTimeoutInMinutes": 15
+            }
+          },
+          {
+            "Name": "data1-http-8445",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data1')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": "[parameters('applicationSecurePort')]",
+              "backendPort": 8445,
+              "idleTimeoutInMinutes": 15
+            }
+          },
+          {
+            "Name": "data2-http-8445",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd-data2')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd-data2')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/probes/tcp-8445')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": "[parameters('applicationSecurePort')]",
+              "backendPort": 8445,
+              "idleTimeoutInMinutes": 15
+            }
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 880,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "tcp-880"
+          },
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8445,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "tcp-8445"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('nicNamePrefix'),'-mgmt-',copyindex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "NetworkInterface"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+      ],
+      "copy": {
+        "count": "[parameters('numberOfInstances')]",
+        "name": "niccopy"
+      },
+      "properties": {
+        "networkSecurityGroup": {
+          "id": "[parameters('nsgID')]"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[concat(parameters('mgmtIpAddress'),copyindex(4))]",
+              "subnet": {
+                "id": "[parameters('mgmtSubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(parameters('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd-mgmt')]"
+                }
+              ],
+              "loadBalancerInboundNatRules": [
+                {
+                  "id": "[concat(parameters('lbID'), '/inboundNatRules/', 'guimgt',copyIndex(1))]"
+                },
+                {
+                  "id": "[concat(parameters('lbID'), '/inboundNatRules/', 'sshmgt',copyIndex(1))]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('nicNamePrefix'),'-int-',copyindex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "NetworkInterface"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+      ],
+      "copy": {
+        "count": "[parameters('numberOfInstances')]",
+        "name": "niccopy"
+      },
+      "properties": {
+        "networkSecurityGroup": {
+          "id": "[parameters('nsgID')]"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[concat(parameters('intIpAddress'),copyindex(4))]",
+              "subnet": {
+                "id": "[parameters('intSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('nicNamePrefix'),'-data-',copyindex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "NetworkInterface"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+      ],
+      "copy": {
+        "count": "[parameters('numberofInstances')]",
+        "name": "niccopy"
+      },
+      "properties": {
+        "networkSecurityGroup": {
+          "id": "[parameters('nsgID')]"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "static",
+              "privateIPAddress": "[concat(parameters('extIpAddress'),copyIndex(1),'1')]",
+              "primary": true,
+              "subnet": {
+                "id": "[parameters('extSubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(parameters('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd-data1')]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "static",
+              "privateIPAddress": "[concat(parameters('extIpAddress'),copyIndex(1),'2')]",
+              "primary": false,
+              "subnet": {
+                "id": "[parameters('extSubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(parameters('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd-data2')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionCompute')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(parameters('f5NamePrefix'),copyIndex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "VirtualMachine"
+      },
+      "dependsOn": [
+      ],
+      "plan": {
+        "name": "f5-bigip-virtual-edition-best-byol",
+        "publisher": "f5-networks",
+        "product": "f5-big-ip"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('availabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('instanceType')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('f5NamePrefix'),copyIndex(1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "f5-networks",
+            "offer": "f5-big-ip",
+            "sku": "f5-bigip-virtual-edition-best-byol",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(parameters('f5NamePrefix'),'osdisk',copyIndex(1))]",
+            "vhd": {
+              "uri": "[concat(concat(reference(resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('newStorageAccountName')), parameters('apiVersionStorage')).primaryEndpoints['blob'], 'vhds/'), parameters('f5NamePrefix'), copyIndex(1), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[concat(resourceId('Microsoft.Network/networkInterfaces',parameters('nicNamePrefix')),'-mgmt-',copyIndex(1))]",
+              "properties": {
+                "primary": true
+              }
+            },
+            {
+              "id": "[concat(resourceId('Microsoft.Network/networkInterfaces',parameters('nicNamePrefix')),'-int-',copyIndex(1))]",
+              "properties": {
+                "primary": false
+              }
+            },
+            {
+              "id": "[concat(resourceId('Microsoft.Network/networkInterfaces',parameters('nicNamePrefix')),'-data-',copyIndex(1))]",
+              "properties": {
+                "primary": false
+              }
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('diagStorageAccountName')), parameters('apiVersionStorage')).primaryEndpoints['blob']]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

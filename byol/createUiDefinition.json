@@ -1,0 +1,497 @@
+{
+     "handler": "Microsoft.Compute.MultiVm",
+     "version": "0.1.2-preview",
+     "parameters": {
+          "basics": [
+          ],
+          "steps": [
+               {
+                    "name": "infrastructureSettings",
+                    "label": "Infrastructure Settings",
+                    "subLabel": {
+                         "preValidation": "Configure Infrastructure Settings",
+                         "postValidation": "Done"
+                    },
+                    "bladeTitle": "Infrastructure Settings",
+                    "elements": [
+                         {
+                              "name": "solutionDeploymentName",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Deployment Name",
+                              "toolTip": "A friendly name for this deployment.",
+                              "defaultValue": "F5waf",
+                              "constraints": {
+                                   "required": true,
+                                   "regex": "^[a-z0-9A-Z]{1,10}$",
+                                   "validationMessage": "Only letters and numbers are allowed, and the value must be 1-10 characters long"
+                              }
+                         },
+                         {
+                              "name": "adminUsername",
+                              "type": "Microsoft.Compute.UserNameTextBox",
+                              "label": "F5 WAF Username",
+                              "defaultValue": "azureuser",
+                              "toolTip": "Administrative username for the Azure virtual machine(s).",
+                              "osPlatform": "Windows"
+                         },
+                         {
+                              "name": "adminPassword",
+                              "type": "Microsoft.Compute.CredentialsCombo",
+                              "label": {
+                                   "password": "F5 WAF Password",
+                                   "confirmPassword": "Confirm Password"
+                              },
+                              "toolTip": {
+                                   "password": "Administrative password for the Azure virtual machine(s)."
+                              },
+                              "constraints": {
+                                   "required": true
+                              },
+                              "options": {
+                                   "hideConfirmation": false
+                              },
+                              "osPlatform": "Windows"
+                         },
+                         {
+                              "name": "publicIp",
+                              "type": "Microsoft.Network.PublicIpAddressCombo",
+                              "label": {
+                                   "publicIpAddress": "Public IP address",
+                                   "domainNameLabel": "Domain name label"
+                              },
+                              "toolTip": {
+                                   "publicIpAddress": "",
+                                   "domainNameLabel": ""
+                              },
+                              "defaultValue": {
+                                   "publicIpAddressName": "waf-pip"
+                              },
+                              "constraints": {
+                                   "required": {
+                                        "domainNameLabel": true
+                                   }
+                              },
+                              "options": {
+                                   "hideNone": true,
+                                   "hideDomainNameLabel": false,
+                                   "hideExisting": true
+                              },
+                              "visible": true
+                         },
+                         {
+                              "name": "numberOfInstances",
+                              "type": "Microsoft.Common.DropDown",
+                              "label": "Number of WAFs",
+                              "defaultValue": "1",
+                              "toolTip": "The number of individual F5 WAFs (nodes) to provision for this cluster.",
+                              "constraints": {
+                                   "allowedValues": [
+                                        {
+                                             "label": "1",
+                                             "value": "1"
+                                        },
+                                        {
+                                             "label": "2",
+                                             "value": "2"
+                                        }
+                                   ]
+                              }
+                         },
+                         {
+                              "name": "instanceType",
+                              "type": "Microsoft.Compute.SizeSelector",
+                              "label": "Virtual Machine Size",
+                              "toolTip": "The size of virtual machine to provision for each cluster node.",
+                              "recommendedSizes": [
+                                   "Standard_A3",
+                                   "Standard_D2",
+                                   "Standard_D2_v2"
+                              ],
+                              "constraints": {
+                                   "allowedSizes": [
+                                        "Standard_A3",
+                                        "Standard_A4",
+                                        "Standard_A5",
+                                        "Standard_A6",
+                                        "Standard_A7",
+                                        "Standard_D2",
+                                        "Standard_D3",
+                                        "Standard_D4",
+                                        "Standard_D5",
+                                        "Standard_D11",
+                                        "Standard_D12",
+                                        "Standard_D13",
+                                        "Standard_D14",
+                                        "Standard_D2_v2",
+                                        "Standard_D3_v2",
+                                        "Standard_D4_v2",
+                                        "Standard_D5_v2",
+                                        "Standard_D11_v2",
+                                        "Standard_D12_v2",
+                                        "Standard_D13_v2",
+                                        "Standard_D14_v2",
+                                        "Standard_F2",
+                                        "Standard_F4"
+                                   ]
+                              },
+                              "osPlatform": "Linux",
+                              "imageReference": {
+                                   "publisher": "f5-networks",
+                                   "offer": "f5-web-application-firewall",
+                                   "sku": "f5-waf-solution-byol"
+                              },
+                              "count": "[steps('infrastructureSettings').numberOfInstances]"
+                         },
+                         {
+                              "name": "licenseKey1",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "License Token 1",
+                              "toolTip": "BYOL Token for the first F5 WAF node.",
+                              "constraints": {
+                                   "regex": "((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{7}))$",
+                                   "required": true,
+                                   "validationMessage": "Only valid F5 license key tokens are allowed."
+                              }
+                         },
+                         {
+                              "name": "licenseKey2",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "License Token 2",
+                              "toolTip": "BYOL Token for the second F5 WAF node.",
+                              "constraints": {
+                                   "regex": "((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{5}))(-)((?:[A-Z]{7}))$",
+                                   "required": false,
+                                   "validationMessage": "Only valid F5 license key tokens are allowed."
+                              },
+                              "visible": "[equals(int(steps('infrastructureSettings').numberOfInstances), 2)]"
+                         },
+                         {
+                              "name": "restrictedSrcAddress",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Restricted source network or address",
+                              "defaultValue": "*",
+                              "toolTip": "Restricts management access to a specific network or address; enter a IP address or address range in CIDR notation, or asterisk for all sources.",
+                              "constraints": {
+                                   "regex": "^\\*$|^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+                                   "required": true,
+                                   "validationMessage": "Only valid CIDR addresses and the wildcard character (asterisk) are allowed."
+                              }
+                         }
+                    ]
+               },
+               {
+                    "name": "appSettings",
+                    "label": "Application Settings",
+                    "subLabel": {
+                         "preValidation": "Configure Application Settings",
+                         "postValidation": "Done"
+                    },
+                    "bladeTitle": "Application Settings",
+                    "elements": [
+                         {
+                              "name": "applicationProtocols",
+                              "type": "Microsoft.Common.OptionsGroup",
+                              "label": "Application Protocol(s)",
+                              "defaultValue": "HTTP and HTTPS",
+                              "toolTip": "The protocol(s) used to connect to your application.",
+                              "constraints": {
+                                   "allowedValues": [
+                                        {
+                                             "label": "HTTP and HTTPS",
+                                             "value": "http-https"
+                                        },
+                                        {
+                                             "label": "HTTP",
+                                             "value": "http"
+                                        },
+                                        {
+                                             "label": "HTTPS",
+                                             "value": "https"
+                                        },
+                                        {
+                                             "label": "SSL OFFLOAD",
+                                             "value": "https-offload"
+                                        }
+                                   ]
+                              }
+                         },
+                         {
+                              "name": "applicationAddress",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Application Address",
+                              "toolTip": "The public IP address or FQDN of the Application that this WAF will protect (1.2.3.4 or myapp.example.com).",
+                              "constraints": {
+                                   "regex": "^([A-z0-9]+(-[A-z0-9]+)*\\.)+[a-z]{2,}|[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$",
+                                   "required": true,
+                                   "validationMessage": "Only IP addresses and fully-qualified domain names are allowed."
+                              }
+                         },
+                         {
+                              "name": "applicationPort",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Application Port",
+                              "defaultValue": "80",
+                              "toolTip": "The port that your application listens on for unencrypted traffic.",
+                              "constraints": {
+                                   "regex": "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$",
+                                   "required": false,
+                                   "validationMessage": "Only valid TCP port numbers are allowed."
+                              },
+                              "visible": "[not(equals(steps('appSettings').applicationProtocols, 'https'))]"
+                         },
+                         {
+                              "name": "applicationSecurePort",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Application Secure Port",
+                              "defaultValue": "443",
+                              "toolTip": "The port that your application listens on for encrypted traffic.",
+                              "constraints": {
+                                   "regex": "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$",
+                                   "required": false,
+                                   "validationMessage": "Only valid TCP port numbers are allowed."
+                              },
+                              "visible": "[not(equals(steps('appSettings').applicationProtocols, 'http'))]"
+                         },
+                         {
+                              "name": "applicationType",
+                              "type": "Microsoft.Common.DropDown",
+                              "label": "Application Type",
+                              "defaultValue": "Generic - Apache",
+                              "toolTip": "Select the application type that most closely matches your application. This selection helps establish a base security policy on initial deployment, and an exact match is not required.",
+                              "constraints": {
+                                   "allowedValues": [
+                                        {
+                                             "label": "Generic - IIS",
+                                             "value": "iis"
+                                        },
+                                        {
+                                             "label": "Generic - Apache",
+                                             "value": "apache"
+                                        },
+                                        {
+                                             "label": "Generic - NGINX",
+                                             "value": "nginx"
+                                        },
+                                        {
+                                             "label": "Shop - Magento ",
+                                             "value": "magento"
+                                        },
+                                        {
+                                             "label": "Shop - WooCommerce",
+                                             "value": "woo"
+                                        },
+                                        {
+                                             "label": "Shop - BigCommerce",
+                                             "value": "big"
+                                        },
+                                        {
+                                             "label": "Shop - Volusion",
+                                             "value": "volusion"
+                                        },
+                                        {
+                                             "label": "Shop - Miva Merchant",
+                                             "value": "miva"
+                                        },
+                                        {
+                                             "label": "Shop - Shopify",
+                                             "value": "shopify"
+                                        },
+                                        {
+                                             "label": "Shop - Demandware",
+                                             "value": "demandware"
+                                        },
+                                        {
+                                             "label": "Shop - osCommerce",
+                                             "value": "os"
+                                        },
+                                        {
+                                             "label": "Shop - Generic",
+                                             "value": "shop"
+                                        },
+                                        {
+                                             "label": "CMS - WordPress",
+                                             "value": "wordpress"
+                                        },
+                                        {
+                                             "label": "CMS - Drupal",
+                                             "value": "drupal"
+                                        },
+                                        {
+                                             "label": "CMS - Joomla!",
+                                             "value": "joomla"
+                                        },
+                                        {
+                                             "label": "CMS - Blogger",
+                                             "value": "blogger"
+                                        },
+                                        {
+                                             "label": "CMS - vBulletin",
+                                             "value": "vbulletin"
+                                        },
+                                        {
+                                             "label": "CMS - ExpressionEngine",
+                                             "value": "expression"
+                                        },
+                                        {
+                                             "label": "CMS - DNN Software",
+                                             "value": "dnn"
+                                        },
+                                        {
+                                             "label": "CMS - Adobe CQ",
+                                             "value": "adobecq"
+                                        },
+                                        {
+                                             "label": "CMS - Ektron",
+                                             "value": "ektron"
+                                        },
+                                        {
+                                             "label": "CMS - Sharepoint",
+                                             "value": "sharepoint"
+                                        },
+                                        {
+                                             "label": "CMS - Generic",
+                                             "value": "cms"
+                                        }
+                                   ]
+                              }
+                         },
+                         {
+                              "name": "blockingLevel",
+                              "type": "Microsoft.Common.DropDown",
+                              "label": "Security Blocking Level",
+                              "defaultValue": "Medium",
+                              "toolTip": "Select a security blocking level for the initial deployment. The security level sets the operating mode of the Web Application Firewall. A High security level will apply as much protection as possible for the application and will be less lenient when automatically adding exceptions. A Low security level will apply well-known protections for the application and will be most lenient when automatically adding exceptions. A Medium security level is a balanced configuration. The Off security level will configure the WAF in transparent mode. Select Custom to upload a custom security policy below to apply to this deployment.",
+                              "constraints": {
+                                   "required": true,
+                                   "allowedValues": [
+                                        {
+                                             "label": "High",
+                                             "value": "high"
+                                        },
+                                        {
+                                             "label": "Medium",
+                                             "value": "medium"
+                                        },
+                                        {
+                                             "label": "Low",
+                                             "value": "low"
+                                        },
+                                        {
+                                             "label": "Off",
+                                             "value": "off"
+                                        },
+                                        {
+                                             "label": "Custom",
+                                             "value": "custom"
+                                        }
+                                   ]
+                              }
+                         },
+                         {
+                              "name": "customPolicy",
+                              "type": "Microsoft.Common.FileUpload",
+                              "label": "Custom ASM Security Policy",
+                              "toolTip": "A custom ASM security policy to apply to the WAF, in XML format. If specified, the policy you select here overrides the selections you made above for Application Type.",
+                              "constraints": {
+                                   "required": false
+                              },
+                              "options": {
+                                   "multiple": false,
+                                   "uploadMode": "url",
+                                   "openMode": "text",
+                                   "encoding": "UTF-8"
+                              },
+                              "visible": "[equals(steps('appSettings').blockingLevel, 'custom')]"
+                         },
+                         {
+                              "name": "sslCert",
+                              "type": "Microsoft.Common.FileUpload",
+                              "label": "SSL Certificate Upload",
+                              "toolTip": "Browse and select the SSL certificate and key (in .pfx format) corresponding to the application's public virtual server.",
+                              "constraints": {
+                                   "required": false,
+                                   "accept": ".pfx, .p12"
+                              },
+                              "options": {
+                                   "multiple": false,
+                                   "uploadMode": "url",
+                                   "openMode": "text",
+                                   "encoding": "UTF-8"
+                              },
+                              "visible": "[not(equals(steps('appSettings').applicationProtocols, 'http'))]"
+                         },
+                         {
+                              "name": "sslPswd",
+                              "type": "Microsoft.Common.PasswordBox",
+                              "label": {
+                                   "password": "Certificate Passphrase",
+                                   "confirmPassword": "Confirm Passphrase"
+                              },
+                              "toolTip": "Enter the passphrase for the specified .pfx file.",
+                              "constraints": {
+                                   "required": false
+                              },
+                              "options": {
+                                   "hideConfirmation": true
+                              },
+                              "visible": "[not(equals(steps('appSettings').applicationProtocols, 'http'))]"
+                         },
+                         {
+                              "name": "applicationPlatform",
+                              "type": "Microsoft.Common.OptionsGroup",
+                              "label": "Application Platform",
+                              "defaultValue": "IaaS",
+                              "toolTip": "The platform on which you have deployed your application. Select IaaS if your application is deployed on an Azure Virtual Machine. Select PaaS if your application is deployed on an Azure Application Service or Application Service Environment.",
+                              "constraints": {
+                                   "allowedValues": [
+                                        {
+                                             "label": "IaaS",
+                                             "value": "iaas"
+                                        },
+                                        {
+                                             "label": "PaaS",
+                                             "value": "paas"
+                                        }
+                                   ]
+                              }
+                         },
+                         {
+                              "name": "applicationServiceFqdn",
+                              "type": "Microsoft.Common.TextBox",
+                              "label": "Application Service FQDN",
+                              "toolTip": "The public FQDN of your application, if deploying an Azure App Service (optional).",
+                              "constraints": {
+                                   "regex": "^([A-z0-9]+(-[A-z0-9]+)*\\.)+[a-z]{2,}$",
+                                   "required": false,
+                                   "validationMessage": "Only fully-qualified domain names are allowed."
+                              },
+                              "visible": "[equals(steps('appSettings').applicationPlatform, 'paas')]"
+                         }
+                    ]
+               }
+          ],
+          "outputs": {
+               "location": "[location()]",
+               "solutionDeploymentName": "[steps('infrastructureSettings').solutionDeploymentName]",
+               "adminUsername": "[steps('infrastructureSettings').adminUsername]",
+               "adminPassword": "[steps('infrastructureSettings').adminPassword.password]",
+               "numberOfInstances": "[int(steps('infrastructureSettings').numberOfInstances)]",
+               "instanceType": "[steps('infrastructureSettings').instanceType]",               
+               "licenseKey1": "[steps('infrastructureSettings').licenseKey1]",
+               "licenseKey2": "[steps('infrastructureSettings').licenseKey2]", 
+               "publicIpName": "[steps('infrastructureSettings').publicIp.name]",
+               "dnsLabel": "[steps('infrastructureSettings').publicIp.domainNameLabel]",
+               "restrictedSrcAddress": "[steps('infrastructureSettings').restrictedSrcAddress]",
+               "applicationProtocols": "[steps('appSettings').applicationProtocols]",
+               "applicationAddress": "[steps('appSettings').applicationAddress]",
+               "applicationPort": "[steps('appSettings').applicationPort]",
+               "applicationSecurePort": "[steps('appSettings').applicationSecurePort]",
+               "applicationType": "[steps('appSettings').applicationType]",
+               "applicationServiceFqdn": "[steps('appSettings').applicationServiceFqdn]",
+               "blockingLevel": "[steps('appSettings').blockingLevel]",
+               "customPolicy": "[steps('appSettings').customPolicy]",
+               "sslCert": "[steps('appSettings').sslCert]",
+               "sslPswd": "[steps('appSettings').sslPswd]"
+          }
+     }
+}

@@ -1,0 +1,212 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "parameterValues": {
+    "baseUrl": {
+          "type": "string",
+          "defaultValue": "",
+          "metadata": {
+               "description": "The base URL for marketplace deployment.",
+               "artifactsBaseUrl": ""
+          }
+     },
+    "solutionDeploymentName": {
+      "type": "string",
+      "metadata": {
+        "description": "A unique name for this deployment."
+      }
+    },
+    "numberOfInstances": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [ 1, 2 ],
+      "metadata": {
+        "description": "The number of Web Application Firewalls that will be deployed in front of your application."
+      }
+    },
+    "instanceType": {
+      "type": "string",
+      "defaultValue": "Standard_D3",
+      "metadata": {
+        "description": "The size of the Virtual Hardware Instance."
+      },
+      "allowedValues": [
+          "Standard_A3",
+          "Standard_A4",
+          "Standard_A5",
+          "Standard_A6",
+          "Standard_A7",
+          "Standard_D2",
+          "Standard_D3",
+          "Standard_D4",
+          "Standard_D11",
+          "Standard_D12",
+          "Standard_D13",
+          "Standard_D14",
+          "Standard_D2_v2",
+          "Standard_D3_v2",
+          "Standard_D4_v2",
+          "Standard_D5_v2",
+          "Standard_D11_v2",
+          "Standard_D12_v2",
+          "Standard_D13_v2",
+          "Standard_D14_v2",
+          "Standard_F2",
+          "Standard_F4"
+      ]
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "User name to login to the Web Application Firewall."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password to login to the Web Application Firewall."
+      }
+    },
+    "publicIpName": {
+      "type": "string",
+      "defaultValue": "ip01",
+      "metadata": {
+        "description": "Unique name for the Public IP used to access the Web Application Firewalls for management."
+      }
+    },
+    "dnsLabel": {
+      "type": "string",
+      "defaultValue": "dnslabel",
+      "metadata": {
+        "description": "Unique DNS name for the Public IP used to access the Web Application Firewalls for management."
+      }
+    },
+    "licenseKey1": {
+      "type": "string",
+      "metadata": {
+        "description": "The license token for the first F5 Web Application Firewall."
+      }
+    },
+    "licenseKey2": {
+      "type": "string",
+      "defaultValue": "NOT_SPECIFIED",
+      "metadata": {
+        "description": "The license token for the second F5 Web Application Firewall (if applicable)."
+      }
+    },
+    "applicationProtocols": {
+      "type": "string",
+      "defaultValue": "http",
+      "allowedValues": [ 
+           "http",
+           "https",
+           "http-https",
+           "https-offload"
+      ],
+      "metadata": {
+        "description": "The protocol(s) that will be used to configure the WAF VIPs."
+      }
+    },
+    "applicationAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "The public IP address or DNS FQDN of the application that this WAF will protect."
+      }
+    },
+    "applicationServiceFqdn": {
+         "type": "string",
+          "defaultValue": "NOT_SPECIFIED",
+          "metadata": {
+               "description": "If deploying in front of an Azure App Service, the FQDN of the public application."
+          }
+     },
+    "applicationPort": {
+      "type": "string",
+      "defaultValue": "80",
+      "metadata": {
+        "description": "If deploying an HTTP application, the port on which your service listens for unencrypted traffic. This field is not required when deploying https only."
+      }
+    },
+    "applicationSecurePort": {
+          "type": "string",
+          "defaultValue": "443",
+          "metadata": {
+               "description": "If deploying an HTTPS application, the port on which your service listens for encrypted traffic. This field is not required when deploying http only."
+          }
+    },
+    "sslCert": {
+          "type": "string",
+          "defaultValue": "NOT_SPECIFIED",
+          "metadata": {
+               "description": "The SSL certificate .pfx file corresponding to public facing VIP."
+          }
+     },
+    "sslPswd": {
+          "type": "securestring",
+          "defaultValue": "NOT_SPECIFIED",
+          "metadata": {
+               "description": "The SSL certificate .pfx file corresponding to public facing VIP."
+          }
+     },
+    "applicationType": {
+          "type": "string",
+          "defaultValue": "apache",
+          "metadata": {
+               "description": "Is your application running on a Linux OS or a Windows OS?"
+          },     
+          "allowedValues": [
+               "apache",
+               "iis",
+               "nginx",
+               "magento",
+               "woo",
+               "big",
+               "volusion",
+               "miva",
+               "shopify",
+               "demandware",
+               "os",
+               "shop",
+               "wordpress",
+               "drupal",
+               "joomla",
+               "blogger",
+               "vbulletin",
+               "expression",
+               "dnn",
+               "adobecq",
+               "ektron",
+               "sharepoint",
+               "cms"
+          ]
+     },
+    "blockingLevel": {
+      "type": "string",
+      "defaultValue": "medium",
+      "metadata": {
+        "description": "Please select how aggressive you would like the blocking level of this WAF to be.  Remember that the more aggressive the blocking level, the more potential there is for false-positives that the WAF might detect. Select Custom to specify your own security policy below."
+      },    
+      "allowedValues": [
+        "low",
+        "medium",
+        "high",
+        "off",
+        "custom"
+      ]
+    },
+    "customPolicy": {
+      "type": "string",
+      "defaultValue": "NOT_SPECIFIED",
+      "metadata": {
+        "description": "Specify the publicly available URL of a custom ASM security policy in XML format. This policy will be applied in place of the standard High/Medium/Low policy as indicated above."
+      }
+    },
+    "restrictedSrcAddress": {
+      "type": "string",
+      "defaultValue": "*",
+      "metadata": {
+        "description": "Restricts management access to a specific network or address. Enter a IP address or address range in CIDR notation, or asterisk for all sources."
+      }
+    }
+  }
+}

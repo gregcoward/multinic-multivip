@@ -1,0 +1,685 @@
+sys application template /Common/f5.asm_log_creator_t2 {
+    actions {
+        definition {
+            html-help {
+                <p><strong>Deployment Helper iApp Template</strong></p>
+
+<p>This template creates a set of configuration objects to be consumed </p>
+            }
+            implementation {
+##################################################################################################################################################################################################
+## Example call to REST API to instantiate this iApp, there is no presentation so passing in specific									   														##
+## variables which are called at the start of the template																				   														##	
+##													  																					   														##
+##	curl -sku admin:admin-X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d \																	##
+## '{"name":"'"$appname"'","partition":"Common","strictUpdates":"disabled","template":"/Common/f5.deploy_helper","trafficGroup":"none","lists":[],\												##
+## "variables":[{"name":"variables__deployment","encrypted":"no","value":"'"$deployment"'"},{"name":"variables__type","encrypted":"no","value":"'"$type"'"},\									##
+## {"name":"variables__level","encrypted":"no","value":"'"$level"'"},{"name":"variables__asm_policy_location","encrypted":"no","value":"'"$asm_policy_location"'"},\							##
+## {"name":"variables__custom_asm_policy","encrypted":"no","value":"'"$custom_asm_policy"'"},{"name":"variables__l7dos_level","encrypted":"no","value":"'"$l7dos_level"'"}]}' | jq .			##
+##	{"name":"variables__do_asm","encrypted":"no","value":"'"$do_asm"'"},{"name":"variables__do_l7dos","encrypted":"no","value":"'"$do_l7dos"'"},\												##
+##	{"name":"variables__do_uri_rewrite","encrypted":"no","value":"'"$do_uri_rewrite"'"}																											##
+## 																																		   														##	
+##################################################################################################################################################################################################
+
+	package require iapp 1.1.3
+     
+     proc tmsh_exe { command } {
+          puts $command
+          exec /usr/bin/tmsh -c $command
+     }
+     proc format_jsonlist { input } {
+          regsub -all "\"|\\\]|\\\[|\n" $input "" input
+          regsub -all "," $input " " input	
+          return $input
+     }
+     proc deploy_scripts {} {
+     
+          ########eventhub iRule Start########
+          set ::eh_irule {
+when RULE_INIT {
+     upvar 0 tcl_platform static::tcl_platform
+} ; #end of event RULE_INIT
+
+proc just_ascii {data} {
+     set clean [list]
+     binary scan $data c* chars
+     foreach {c} $chars {
+          if {($c & 0x80) || ($c == 127) ||
+               (($c < 32) && ($c != 9) && ($c != 10) && ($c != 13))} {
+               continue
+          } 
+          lappend clean $c
+     }        
+     return [binary format c* $clean]
+} ; #end of proc just_ascii
+
+proc POST_log_HSL {c msg validate} {
+     upvar 1 $c ctx
+
+     # set time-sensitive request variables
+     set epoch [expr {[clock seconds] + 600}]
+     set string_to_sign "${ctx(encoded_path)}\n${epoch}"
+
+     set token [CRYPTO::sign -alg hmac-sha256 -key $ctx(key) $string_to_sign]
+     set signed_string [URI::encode [b64encode ${token}]]
+
+     set fullPOST "POST ${ctx(full_path)} HTTP/1.1\r\nUser-Agent: BigIP\r\nValidate: ${validate}\r\nAccept: application/json\r\nHost: ${ctx(host)}\r\nAuthorization: SharedAccessSignature sr=${ctx(encoded_path)}&sig=${signed_string}&se=${epoch}&skn=${ctx(key_name)}\r\nContent-Length: [string length $msg]\r\n\r\n${msg}"
+
+     if {[catch {HSL::send $ctx(hsl) $fullPOST} rv] || ($rv == 0)} {
+          log local0.err "HSL::send to ${ctx(HSL_pool)} failed (${rv})"
+     }
+
+} ; #end of proc POST_log_HSL
+
+proc process_msg {c cefmsg} {
+     upvar 1 $c ctx
+     
+     # set value for Event Hub validation message
+     set validate ${ctx(applianceid)}
+     
+     #trim off useless prefix of following message
+     set cefmsg [string range $cefmsg 0 [string first "\n" $cefmsg]]
+
+     #clean the message of any ASM cookies
+     regsub -all {\x20TS[A-Za-z0-9_]+\x5c=[A-Za-z0-9]+;?} $cefmsg "" cefmsg
+
+     if {$cefmsg contains "CEF:0|F5|ASM"} {
+          # message is from ASM / DoS
+          set cefmsg [findstr $cefmsg "CEF:0"]
+          # store CEF headers for later use
+          set cefheaders [string range $cefmsg 0 [string first "|dvchost=" $cefmsg]]
+          # translate violation severity to Azure-speak
+          set old_sev [string index $cefheaders end-1]
+          array set rating_arr { 1 0 2 1 3 2 4 3 5 3 }
+          set old_rating [findstr $cefmsg "cn2=" 4 " "]
+          set new_rating [expr { $old_rating ne "" ? $rating_arr($old_rating) : 1 }]
+          # insert our new violation rating as Azure severity
+          regsub -start [string last "$old_sev|" $cefheaders] "$old_sev|" $cefheaders "$new_rating" cefheaders
+          # sub in BIG-IP version, if not present
+          if { [string first "ASM||" $cefheaders] >= 0 } {
+            regsub -start [string first "ASM||" $cefheaders] {ASM[|]{2}} $cefheaders "WAF|$static::tcl_platform(osVersion)|" cefheaders
+          } else {
+            # use solution type instead of product name
+            regsub "ASM" $cefheaders "WAF" cefheaders
+          }
+
+          # solution type
+          set cs1 "cs1=WAF"
+          # azure VM GUID
+          set deviceExternalId "deviceExternalID=$ctx(applianceid)"
+          
+          # vs destination port
+          set vs_dpt [findstr $cefmsg "dpt=" 4 " "]
+          
+          set member [class lookup $vs_dpt /Common/appmap_datagroup]
+          
+          set dpt "dpt=[lindex [split $member ":"] 1]"
+          
+          set test_dst [lindex [split $member ":"] 0]
+          
+          # destination IP
+          set dst "dst=[expr { [regexp {([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})} $test_dst] ? $test_dst : "" } ]"
+          
+          # destination hostname
+          set dhost "dhost=[expr { $dst == "dst=" ? $test_dst : "" }]"
+          
+          # source IP
+          set src [findstr $cefmsg "src=" 0 " "]
+          # source port
+          set spt [findstr $cefmsg "spt=" 0 " "]
+          # timestamp
+          set time [findstr $cefmsg "rt=" 3 " deviceExternalId"]
+          regexp {(^[a-zA-Z]+\s\d+)(.*)} $time all month other
+          set newtime "${month},${other}"
+          set rt "rt=[clock format [clock scan $newtime] -format "%s"]"
+          # full alert description
+          set reason "reason=[findstr $cefmsg "cs4=" 4 " cs4Label"]"
+          # original vendor action, if different from detected or blocked)
+          set F5ASMASCAction "F5ASMASCAction=[findstr $cefmsg "act=" 4 " "]"   
+          # vendor action (detected or blocked)
+          set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "act=Blocked" : "act=Detected" } ]
+          
+          # attack info links
+          set cs3 "cs3=https://support.f5.com/kb/en-us/products/big-ip_asm/manuals/product/asm-implementations-<version>"
+          # remediation text
+          if {[string first "externalId=" $cefmsg] >= 0} {
+            set supportid [findstr $cefmsg "externalId=" 11 " act"]
+          } else {
+            set supportid "N/A"
+          }
+          set cs2 "cs2=Please consult the documentation for remediation steps (Event Correlation ID is ${supportid})"
+          # remediation links
+          set cs4 "cs4=[expr { $supportid ne "N/A" ? "/dms/policy/win_open_proxy_request.php?id\\=&support_id\\=${supportid}" : "/dms/policy/frn_illegal_requests.php" }]"
+          
+          # original detection message for SIEM
+          # trim actual HTTP request from end of message
+          # msg length limited to 1023 characters
+          set msg "msg=[string range [string map { "|" "\\|" "=" "\\=" } [string range $cefmsg 0 [string first " cs3Label=" $cefmsg]]] 0 1023]"
+
+          set cefmsg "$cefheaders$cs1 $deviceExternalId $dhost $dst $dpt $src $spt $rt $reason $cs3 $act $F5ASMASCAction $cs2 $cs4 $msg"
+
+          # log local0.info "ASM LOG: ${cefmsg}"
+
+          call POST_log_HSL ctx $cefmsg $validate
+     } elseif {$cefmsg contains "Health|1|"} {
+          catch {regsub -all "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" [string trimright [string trimleft $cefmsg "CEF:0|"]] "${ctx(applianceid)}" cefmsg}
+
+          # log local0.info "HEALTH LOG: ${cefmsg}"
+
+          call POST_log_HSL ctx $cefmsg $validate
+     } else {
+          #message is unrecognized          
+          #for now, discard it here (by inaction)         
+          log local0.info "UNRECOGNIZED LOG MESSAGE, DISCARDING"
+     }
+} ; #end of proc process_msg
+
+when CLIENT_ACCEPTED {
+     #per-application variables supplied with deployment
+     set ctx(appname) <appname> 
+     set ctx(applianceid) [class lookup [IP::client_addr] /Common/applianceid_datagroup]
+     set ctx(name_space) [class lookup ServiceBusNamespace /Common/eventhub_datagroup]
+     set ctx(event_hub) [class lookup EventHubName /Common/eventhub_datagroup]
+     set ctx(key_name) [class lookup PolicyName /Common/eventhub_datagroup]
+     set ctx(key) [class lookup PolicySASKey /Common/eventhub_datagroup]
+     
+     #derive recurring request variables
+     set ctx(host) "${ctx(name_space)}.servicebus.windows.net"
+     set ctx(path) "https://${ctx(host)}/${ctx(event_hub)}"
+     set ctx(full_path) "${ctx(path)}/publishers/${ctx(applianceid)}/messages?timeout=60&api-version=2015-01"
+     set ctx(encoded_path) [URI::encode $ctx(path)]
+
+     #plus HSL pool name
+     set ctx(HSL_pool) "/Common/${ctx(appname)}.app/${ctx(appname)}_encrypt"
+
+     set ctx(hsl) [HSL::open -proto TCP -pool ${ctx(HSL_pool)}]
+
+     set buf ""
+     TCP::collect
+} ; #end of event CLIENT_ACCEPTED
+
+when CLIENT_DATA {
+     append buf [call just_ascii [TCP::payload]]
+     TCP::payload replace 0 [TCP::payload length] ""
+     TCP::collect
+     #Note: do NOT call TCP::release here, because that will reset
+     #the TCP connection since we don't have a pool.  If we just
+     #keep calling TCP:::collect alone we can go on indefinitely
+
+     while {[set dex [string first "CEF:0" $buf]] >= 0} {
+          if {[set d2x [string first "CEF:0" $buf [expr {$dex + 1}]]] < 0} {
+               #unsure buf contains a complete message yet
+               break
+          }
+
+          #pull first complete message from buf
+          set cefmsg [string range $buf $dex [expr {$d2x - 1}]]
+          set buf [string range $buf $d2x end]
+
+          call process_msg ctx $cefmsg
+     }
+
+     #any trailing partial message stays in buf until next packet
+     #arrives or incoming TCP connection is closed
+} ; #end of event CLIENT_DATA
+
+when CLIENT_CLOSED {
+     #deal with final message in buf
+     if {[string first "CEF:0" $buf] >= 0} {
+          call process_msg ctx $buf
+     }
+} ; #end of event CLIENT_CLOSED
+          }
+          ########eventhub iRule End########
+                   
+          ########eventhub Part 2iRule Start########	
+          set ::eh2_irule {
+when HTTP_REQUEST {
+     set validate [HTTP::header Validate]
+}
+when HTTP_RESPONSE {
+     # log local0. "EventHub $validate Response: [HTTP::status]"
+     HTTP::respond 200 content "ok"
+}
+          }
+          ########eventhub Part 2 iRule End########	
+          
+          ########EventHub BIG-IP Health Status iCall########
+          set ::icall_eventhub_health {
+   
+   # wait to run the script so any outstanding deployments can finish
+   after 60000
+   # generate a timestamp for this event
+   set timestamp [clock format [clock seconds] -format "%s"]
+   set vs_log ""
+   set msgs ""
+   
+   # Health message section
+   # get a list of all virtual servers
+   foreach virtual [tmsh::get_status ltm virtual recursive] {
+       set vs_state [tmsh::get_field_value $virtual "status.availability-state"]
+       # Protected Resource Health
+       set name [tmsh::get_name $virtual]
+       set config [lindex [tmsh::get_config ltm virtual $name] 0]
+       set vs_ip [lindex [split [tmsh::get_field_value $config "destination"] ":" ] 0]
+       set vs_lines [split [tmsh::show ltm virtual $name field-fmt] "\n"]
+       foreach vs_line $vs_lines {
+           if {[string first "destination " $vs_line] != -1  }  {
+               set vs_port [lindex [split $vs_line ":"] 1]
+           }
+       }
+      
+       # get a list of available logging virtual servers
+       if { ( $vs_state ne "offline" ) && ( [string match *255.255.255.* $vs_ip] ) && ( $vs_port eq "1001" || $vs_port eq "webpush" ) }  {
+           lappend vs_log $vs_ip
+       }
+
+       if { ( $vs_ip eq "0.0.0.0" ) && ( ![string match "*_redir_vs*" $name] ) }  {
+           # get the name/IP of the pool member from the pool attached to this VS
+           set pool_name [lindex [tmsh::get_field_value $config "pool"] 0]
+           set pool_config [lindex [tmsh::get_config ltm pool $pool_name] 0]
+           set pool_member [tmsh::get_name [lindex [tmsh::get_field_value $pool_config "members"] 0]]
+           set show_members [tmsh::show ltm pool $pool_name members field-fmt]
+           set res_addr [lindex [split $pool_member ":" ] 0]
+           set pool_lines [split [tmsh::show ltm pool $pool_name members field-fmt] "\n"]
+           foreach pool_line $pool_lines {
+               if {[string first "${res_addr}:" $pool_line] != -1}  {
+                   set res_port [lindex [split [string trimright $pool_line " \{"] ":"] 1]
+               }
+           }
+           
+           # update the data group for use with ASM logging
+           if { [catch { tmsh::modify ltm data-group internal /Common/appmap_datagroup records add \{ $vs_port \{ data "${res_addr}:${res_port}" \} \} } errmsg] } {
+               puts "Notice: $errmsg"
+               if { [catch { tmsh::modify ltm data-group internal /Common/appmap_datagroup records modify \{ $vs_port \{ data "${res_addr}:${res_port}" \} \} } errmsg] } {
+                   puts "Notice: $errmsg"
+               } else {
+                   puts "App map data group record updated."
+               }
+           } else {
+               puts "App map data group record added."
+           }
+
+           set res_ip [expr { [regexp "(\[0-9\]{1,3})\.(\[0-9\]{1,3})\.(\[0-9\]{1,3})\.(\[0-9\]{1,3})" $res_addr match] ? $res_addr : "" } ]
+           set res_hostname [expr { $res_ip == "" ? $res_addr : "" }]
+
+           # create the Azure resource health message
+           set res_msg "CEF:0|Health|1|Protected Resource|F5|F5 ASM|WAF|V1.0.0|XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX|$res_ip|$res_port|$res_hostname|[expr { $vs_state ne "offline" ? "Good" : "Bad" }]|$timestamp|[expr { $vs_state ne "offline" ? "Application $name is $vs_state" : "Application $name is $vs_state, please take corrective action" }]|"
+           lappend msgs "$res_msg "
+     }
+   }
+
+   # Solution Health
+   # gather system statistics
+   # cpu (aggregate stats not available with field-fmt)
+   set cpu [split [tmsh::show sys cpu] "\n"]
+   foreach thing $cpu {
+       if { [string first "Utilization" $thing] == 0 } {
+           set cpu_list [regsub -all {\s+} [string trimleft [string trimleft [lindex [list $thing] 0] "Utilization"]] ,]
+           set i0 [string first "," $cpu_list]
+           set i1 [string last "," $cpu_list]
+           set cpu_c [string trim [string range $cpu_list 0 $i0] ,]
+           set cpu_a [string trim [string range $cpu_list $i0 $i1] ,]
+           set cpu_m [string trim [string range $cpu_list $i1 end] ,]
+           unset cpu_list
+           unset i0
+           unset i1
+       }
+   }
+   # memory (trending stats not available with field-fmt)
+   set mem [split [tmsh::show sys memory] "\n"]
+   foreach thing $mem {
+       if { [string first "TMM Memory Used" $thing] == 0 } {
+           set tmem_list [regsub -all {\s+} [string trimleft [string trimleft [lindex [list $thing] 0] "TMM Memory Used"]] ,]
+           set i0 [string first "," $tmem_list]
+
+           set i1 [string last "," $tmem_list]
+           set tmem_c [string trim [string range $tmem_list 0 $i0] ,]
+           set tmem_a [string trim [string range $tmem_list $i0 $i1] ,]
+           set tmem_m [string trim [string range $tmem_list $i1 end] ,]
+           unset tmem_list
+           unset i0
+           unset i1
+       }
+       if { [string first "Other Memory Used" $thing] == 0 } {
+           set omem_list [regsub -all {\s+} [string trimleft [string trimleft [lindex [list $thing] 0] "Other Memory Used"]] ,]
+           set i0 [string first "," $omem_list]
+           set i1 [string last "," $omem_list]
+           set omem_c [string trim [string range $omem_list 0 $i0] ,]
+           set omem_a [string trim [string range $omem_list $i0 $i1] ,]
+           set omem_m [string trim [string range $omem_list $i1 end] ,]
+           unset omem_list
+           unset i0
+           unset i1
+       }
+   }
+   # connections (aggregate stats not available with field-fmt)
+   set conn [split [tmsh::show sys performance connections] "\n"]
+   foreach thing $conn {
+       if {[string first "Connections" $thing] == 0 } {
+           set conn_list [regsub -all {\s+} [string trimleft [string trimleft [lindex [list $thing] 0] "Connections"]] ,]
+           set i0 [string first "," $conn_list]
+           set i1 [string last "," $conn_list]
+           set conn_c [string trim [string range $conn_list 0 $i0] ,]
+           set conn_a [string trim [string range $conn_list $i0 $i1] ,]
+           set conn_m [string trim [string range $conn_list $i1 end] ,]
+           unset conn_list
+           unset i0
+           unset i1
+       }
+   }
+   # traffic
+   set traffic [lindex [tmsh::get_status /sys traffic] 0]
+   # client bits in
+   set ci5s [tmsh::get_field_value $traffic "five-sec-avg-client-side-traffic.bits-in"]
+   set ci1m [tmsh::get_field_value $traffic "one-min-avg-client-side-traffic.bits-in"]
+   set ci5m [tmsh::get_field_value $traffic "five-min-avg-client-side-traffic.bits-in"]
+   # client bits out
+   set co5s [tmsh::get_field_value $traffic "five-sec-avg-client-side-traffic.bits-out"]
+   set co1m [tmsh::get_field_value $traffic "one-min-avg-client-side-traffic.bits-out"]
+   set co5m [tmsh::get_field_value $traffic "five-min-avg-client-side-traffic.bits-out"]
+   # server bits in
+   set si5s [tmsh::get_field_value $traffic "five-sec-avg-server-side-traffic.bits-in"]
+   set si1m [tmsh::get_field_value $traffic "one-min-avg-server-side-traffic.bits-in"]
+   set si5m [tmsh::get_field_value $traffic "five-min-avg-server-side-traffic.bits-in"]
+   # server bits out
+   set so5s [tmsh::get_field_value $traffic "five-sec-avg-server-side-traffic.bits-out"]
+   set so1m [tmsh::get_field_value $traffic "one-min-avg-server-side-traffic.bits-out"]
+   set so5m [tmsh::get_field_value $traffic "five-min-avg-server-side-traffic.bits-out"]
+
+   set stats "System Stats \(current/avg/max\): \
+CPU: $cpu_c/$cpu_a/$cpu_m\; \
+TMM Memory: $tmem_c/$tmem_a/$tmem_m\; \
+Other Memory: $omem_c/$omem_a/$omem_m\; \
+Connections: $conn_c/$conn_a/$conn_m\; \
+Client Traffic \(5s/1m/5m\): In:$ci5s/$ci1m/$ci5m Out:$co5s/$co1m/$co5m\; \
+Server Traffic \(5s/1m/5m\): In:$si5s/$si1m/$si5m Out:$so5s/$so1m/$so5m"
+
+   # get a list of critical services that are down
+   set svcs_down ""
+   set services "
+   asm
+   bigd
+   datasyncd
+   dosl7d
+   dosl7d_attack_monitor
+   mysql
+   "
+   foreach service $services {
+       set svc [exec tmsh -c "show sys service $service"]
+       if { [string match *down* $svc] }  {
+           append svcs_down $service " "
+       }
+   }
+   set svc_status [expr { $svcs_down ne "" ? "Services are not running: $svcs_down" : "Services are healthy" }]
+
+   # report overall solution health
+   # if services and/or virtuals are down, report "Bad"
+   set solution_health [expr { $svc_status ne "Services are healthy" ? "Bad" : "Good" }]
+
+   # create the Azure solution health message
+   set sol_msg "CEF:0|Health|1|Solution|F5|F5 ASM|WAF|V1.0.0|XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX||||$solution_health|$timestamp|[expr { $solution_health eq "Bad" ? "$svc_status" : $stats }]|"
+   lappend msgs $sol_msg
+
+   # if the virtual address matches our predefined format, open a tcp socket, put the message to it, and close
+   if {  $vs_log eq "" }  {
+       # no logging virtuals are available or no applications are deployed
+       puts "No suitable logging destination found, exiting."
+   } else {
+       if { [catch { set sock [socket [lindex $vs_log 0] 1001] }] }  {
+           puts "Could not open connection to logging virtual server."
+       } else {
+           foreach msg $msgs {
+                    puts $sock $msg
+           }
+           flush $sock
+           close $sock
+       }
+   }  
+          }
+          ########EventHub BIG-IP Health Status iCall End########
+          
+          ########EventHub datagroup iCall Start########
+          set ::icall_eventhub_datagroup {
+     # get our self IP address
+     set selfip_config [lindex [tmsh::get_config net self self_1nic] 0]
+     set selfip [lindex [tmsh::get_field_value $selfip_config "address"] 0]
+     set selfip [lindex [split $selfip "/"] 0]
+
+     # get the appliance ID
+     if { [catch { set appid [exec jq -r .Logging.ApplianceID /config/blackbox.conf] } errmsg] } {
+          puts "Failed to get the appliance ID with error $errmsg, will try again later."
+     } else {  
+          # update the corresponding data group with an entry linking our self IP address and appliance ID
+          if { [catch { tmsh::modify ltm data-group internal /Common/applianceid_datagroup records add \{ $selfip \{ data $appid \} \} } errmsg] } {
+               puts "Notice: $errmsg"
+               if { [catch { tmsh::modify ltm data-group internal /Common/applianceid_datagroup records modify \{ $selfip \{ data $appid \} \} } errmsg] } {
+                    puts "Notice: $errmsg"
+               } else {
+                    puts "Appliance ID data group record updated."
+               }
+          } else {
+               puts "Applicance ID data group record added."
+          }
+     }
+
+     # get the event hub info and add it to the corresponding data group
+     set props "EventHubName ServiceBusNamespace PolicyName PolicySASKey"
+     set namespace ""
+     foreach prop $props {
+          if { [catch { set value [exec jq -r .Logging.Connection.$prop /config/blackbox.conf] } errmsg] } {
+               puts "Failed to get the $prop value with error $errmsg, will try again later."         
+          } else {
+               if { $prop == "ServiceBusNamespace" } { set namespace $value }
+               if { [catch { tmsh::modify ltm data-group internal /Common/eventhub_datagroup records add \{ $prop \{ data $value \} \} } errmsg] } {
+                 puts "Notice: $errmsg"
+                 if { [catch { tmsh::modify ltm data-group internal /Common/eventhub_datagroup records modify \{ $prop \{ data $value \} \} } errmsg] } {
+                      puts "Notice: $errmsg"
+                 } else {
+                      puts "Eventhub data group record $prop updated."
+                 }
+               } else {
+                 puts "Eventhub ID data group record $prop added."
+               }
+          }
+     }
+
+     # update the remote logging pool with the service bus name
+     if { [catch { tmsh::modify ltm pool <appname>_remote \{ members replace-all-with \{ ${namespace}.servicebus.windows.net:443 \{ fqdn \{ autopopulate enabled name ${namespace}.servicebus.windows.net \} \} \} \} } errmsg] } {
+          puts "Failed to update the remote logging profile with error $errmsg, will try again later."         
+     } else {
+          puts "Successfully updated the remote logging profile to use $namespace"
+     }
+          }
+          ########EventHub datagroup iCall End########         
+     }    
+     proc deploy_datagroups {} {
+          package require iapp 1.1.3
+          
+          puts "Configuring datagroups - In Progress"
+          
+          iapp::conf create ltm data-group internal /Common/applianceid_datagroup type string
+          iapp::conf create ltm data-group internal /Common/appmap_datagroup type string
+          iapp::conf create ltm data-group internal /Common/eventhub_datagroup type string
+                   
+          puts "Configuring datagroups - OK"
+     }   
+	proc deploy_security_logging {} {
+          package require iapp 1.1.3
+          
+          puts "Configuring Security Logging - In Progress"
+          
+          # Set variables; if they don't exist, use defaults
+          set app $tmsh::app_name 
+          set appservice "app-service none"
+          set version [iapp::tmos_version]
+          set is_v12_0 [iapp::tmos_version <= 12.0]
+          set is_v12_1 [iapp::tmos_version >= 12.1]   
+          set log_profiles ""
+          
+          # point to eventhub iRule virtual server via this pool
+          iapp::conf create ltm pool ${app}_encrypt \{ members replace-all-with \{ 255.255.255.254:41001 \{ address 255.255.255.254 \} \} monitor tcp \}
+         
+          iapp::conf create ltm pool ${app}_remote \{ members none monitor tcp \}
+                   
+          # DoS log profile ultimately points to this pool
+          iapp::conf create ltm pool ${app}_dos \{ members replace-all-with \{ 255.255.255.254:1001 \{ address 255.255.255.254 \} \} monitor tcp \}
+          
+          # create log destinations
+          iapp::conf create sys log-config destination remote-high-speed-log ${app}_ld_remote \{ pool-name ${app}_dos \}
+          
+          iapp::conf create sys log-config destination arcsight ${app}_ld_remote_cef \{  forward-to ${app}_ld_remote \}
+          
+          iapp::conf create sys log-config destination remote-syslog ${app}_ld_remote_remotesyslog  format rfc5424 default-facility local0 default-severity notice remote-high-speed-log ${app}_ld_remote
+          
+          # create log configs
+          iapp::conf create sys log-config publisher ${app}_lp_remote \{ destinations replace-all-with \{ ${app}_ld_remote_cef \{ \} \} \}
+          
+          iapp::conf create sys log-config publisher ${app}_lp_system_remote \{ destinations replace-all-with \{ ${app}_ld_remote_remotesyslog \{ \} \} \}
+
+          # create SSL cert for logging virtual server SSL
+          catch { tmsh_exe "create sys crypto key ${app}_remote_ssl_encrypt_cert gen-certificate common-name eventhub_encrypted_logging country US lifetime 3650" }
+          
+          set map "
+               <appname> $app
+               <version> [string map { . - } $version]
+          "
+          set eventhub_rule [string map $map $::eh_irule]
+          
+          iapp::conf create ltm rule ${app}_ir-eventhub \{  $eventhub_rule \}
+          
+          iapp::conf create ltm rule ${app}_ir-eventhub-responder \{  $::eh2_irule \}
+          
+          # TCP profile with a short idle time-out to force the last ASM event message out of the Event Hub iRule buffer
+          iapp::conf create ltm profile tcp ${app}_tcp \{ defaults-from tcp idle-timeout 15 \}
+          
+          iapp::conf create ltm profile server-ssl ${app}_pr_sslserver_encrypt_remote \{ cert ${app}_remote_ssl_encrypt_cert.crt defaults-from serverssl-insecure-compatible key ${app}_remote_ssl_encrypt_cert.key \}
+          
+          iapp::conf create ltm virtual ${app}_remote_hsl-convert \{  destination 255.255.255.254:1001 ip-protocol tcp mask 255.255.255.255 source 0.0.0.0/0 profiles replace-all-with \{ ${app}_tcp \} rules \{${app}_ir-eventhub \}\}
+          
+          iapp::conf create ltm virtual ${app}_remote_encrypt \{  destination 255.255.255.254:41001 ip-protocol tcp mask 255.255.255.255 pool ${app}_remote profiles replace-all-with \{ http \{\} oneconnect \{\} ${app}_pr_sslserver_encrypt_remote \{ context serverside \} tcp \{ \} \} source 0.0.0.0/0 source-address-translation \{ type automap \} rules \{ ${app}_ir-eventhub-responder \}\}
+          
+          if { $is_v12_0 }  {
+               # combined remote and local logging for 12.0
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_remote application replace-all-with \{ ${app}_lp_asm_remote \{ local-storage enabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage arcsight servers replace-all-with \{ 255.255.255.254:1001 \{ \} \} \} \}]         
+          } else {
+               # remote logging
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_remote application replace-all-with \{ ${app}_lp_asm_remote \{ local-storage disabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage arcsight servers replace-all-with \{ 255.255.255.254:1001 \{ \} \} \} \}]
+               
+               # local logging (12.1 does not support local and remote logging on the same profile)
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_local application replace-all-with \{ ${app}_lp_asm_local \{ local-storage enabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage none \} \}]
+          }
+     
+          # l7dos logging
+          append log_profiles [iapp::conf create security log profile ${app}_lp_l7dos_remote \{ dos-application replace-all-with \{ ${app}_lp_l7dos_remote \{ local-publisher local-db-publisher remote-publisher ${app}_lp_remote \} \} \}]	
+          
+          puts "Log profiles configured: $log_profiles"
+          
+          return $log_profiles
+          
+          puts "Configuring Security Logging - OK"		
+	}
+     
+     proc deploy_health_icall {} {
+          package require iapp 1.1.3
+          set app $tmsh::app_name 
+          
+          puts "Configuring Health iCall - In Progress"
+          
+          set map "
+               <appname> ${app}.app/$app
+          "
+          set eventhub_icall [string map $map $::icall_eventhub_health]
+          
+          iapp::conf create sys icall script /Common/send_health_to_eventhub \{ app-service none definition \{$eventhub_icall\} description none events none \}
+          iapp::conf create sys icall handler periodic /Common/send_health_to_eventhub \{ app-service none interval 300 script /Common/send_health_to_eventhub \}
+     
+          puts "Configuring Health iCall - OK"	
+     }
+     
+     proc deploy_datagroup_icall {} {
+          package require iapp 1.1.3
+          set app $tmsh::app_name 
+          
+          puts "Configuring Datagroup iCall - In Progress"
+          
+          set map "
+               <appname> ${app}.app/$app
+          "
+          set eventhub_datagroup_icall [string map $map $::icall_eventhub_datagroup]
+          
+          iapp::conf create sys icall script /Common/eventhub_datagroup \{ app-service none definition \{$eventhub_datagroup_icall\} description none events none \}
+          iapp::conf create sys icall handler periodic /Common/eventhub_datagroup \{ app-service none interval 10 script /Common/eventhub_datagroup \}
+     
+          puts "Configuring Datagroup iCall - OK"	
+     }
+
+	iapp::template start
+     
+     puts "Deploying Logging iApp - In Progress"
+     
+     deploy_scripts   
+     deploy_datagroups    
+     deploy_security_logging
+     deploy_health_icall
+     deploy_datagroup_icall
+
+	puts "Deploying Logging iApp - OK"
+     
+	iapp::template stop
+            }
+            macro {
+            }
+            presentation {
+                include "/Common/f5.apl_common"
+
+section intro {
+
+        # APL choice values may be set even if the optional
+        # clause is not true. This trick is useful for setting
+        # values that APL otherwise would not have access to.
+        # Here, system provisioning values are recalled, and later
+        # used to customize messages displayed within the template.
+        optional ( "HIDE" == "THIS" ) {
+            choice asm_provisioned tcl {
+                return [expr {[iapp::get_provisioned asm] ? "yes" : "no"}]
+            }
+            choice afm_allowed tcl {
+                return [expr { [iapp::get_provisioned afm] ? "yes" : "no"}]
+            }
+            choice analytics_provisioned tcl {
+                return [expr {[iapp::get_provisioned avr] ? "yes" : "no"}]
+            }
+            choice is_admin tcl {
+                return [expr { [iapp::get_user -is_admin] ? "yes" : "no"}]
+            }
+            choice is_v11_6 tcl {
+                return [expr {[iapp::tmos_version >= 11.6] ? "yes" : "no"}]
+            }
+		  choice is_v12_1 tcl {
+                return [expr {[iapp::tmos_version >= 12.1] ? "yes" : "no"}]
+            }
+            choice is_v13_0 tcl {
+                return [expr {[iapp::tmos_version >= 13.0] ? "yes" : "no"}]
+            }
+        }
+    }
+	text {
+
+		intro "Azure WAF Log Profile Creator"
+
+	}
+            }
+            role-acl { admin manager resource-admin }
+            run-as none
+        }
+    }
+    description none
+    ignore-verification false
+    requires-bigip-version-max none
+    requires-bigip-version-min 12.0
+    requires-modules none
+    signing-key none
+    tmpl-checksum none
+    tmpl-signature none
+}
