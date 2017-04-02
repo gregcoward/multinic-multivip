@@ -57,9 +57,21 @@
       ],
       "defaultValue": "Good",
       "metadata": {
-        "description": "F5 SKU(IMAGE) to Deploy, only relevantfor BYOL"
+        "description": "F5 SKU(IMAGE) to Deploy, only relevant for hourly billing."
       },
       "type": "string"
+    },
+    "licensedBandwidth": {
+      "type": "string",
+      "defaultValue": "200m",
+      "metadata": {
+        "description": "The VM image to use for this deployment, only relevant for hourly billing."
+      },
+      "allowedValues": [
+        "1g",
+        "25m",
+        "200m"
+      ]
     },
     "adminUsername": {
       "type": "string",
@@ -486,7 +498,8 @@
             "availabilitySetName": { "value": "[variables('availabilitySetName')]" },
             "newStorageAccountName": { "value": "[variables('newStorageAccountName')]" },
             "diagStorageAccountName": { "value": "[variables('diagStorageAccountName')]" },
-            "imageName": { "value": "[parameters('imageName')]" }
+            "imageName": { "value": "[parameters('imageName')]" },
+            "licensedBandwidth": { "value": "[parameters('licensedBandwidth')]" }
           }
         }
       }

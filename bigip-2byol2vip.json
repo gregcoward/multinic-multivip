@@ -122,7 +122,10 @@
     "sshMgtID": "[concat(variables('lbID'),'/inboundNatRules/sshmgt')]",
     "singleQuote": "'",
     "defaultGw": "[concat(parameters('extIpAddress'),'1')]",
-    "imageName": "f5-bigip-virtual-edition-best-byol"
+    "imageName": "f5-bigip-virtual-edition-best-byol",
+    "licenseBandwidth": {
+      "type": "string"
+    }
   },
   "resources": [
     {

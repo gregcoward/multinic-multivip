@@ -89,6 +89,9 @@
     "imageName": {
       "type": "string"
     },
+    "licensedBandwidth": {
+      "type": "string"
+    },
     "virtualNetworkName": {
       "type": "string"
     },
@@ -116,7 +119,9 @@
     "sshMgtID": "[concat(variables('lbID'),'/inboundNatRules/sshmgt')]",
     "singleQuote": "'",
     "defaultGw": "[concat(parameters('extIpAddress'),'1')]",
-    "imageName": "[concat('f5-bigip-virtual-edition-', parameters('imageName'),'-best-hourly')]"
+    "imageName": "[concat('f5-bigip-virtual-edition-', parameters('imageName'),'-best-hourly')]",
+    "imageNameToLower": "[toLower(parameters('imageName'))]", 
+    "skuToUse": "[concat('f5-bigip-virtual-edition-', parameters('licensedBandwidth'), '-', variables('imageNameToLower'),'-hourly')]", 
   },
   "resources": [
     {
@@ -502,7 +507,7 @@
           "imageReference": {
             "publisher": "f5-networks",
             "offer": "f5-big-ip-hourly",
-            "sku": "[variables('imageName')]",
+            "sku": "[variables('skuToUse')]",
             "version": "latest"
           },
           "osDisk": {
