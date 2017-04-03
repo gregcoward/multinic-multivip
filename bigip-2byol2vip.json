@@ -152,6 +152,7 @@
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers",
       "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-1')]",
         "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-', add(parameters('numCopies'),1))]"
       ],
       "location": "[parameters('location')]",
@@ -569,7 +570,7 @@
         "settings": {
           "fileUris": [
             "[variables('f5CloudLibsTagUrl')]",
-             "[variables('runScriptsUrl')]"
+            "[variables('runScriptsUrl')]"
           ]
         },
         "protectedSettings": {
@@ -597,7 +598,7 @@
         "settings": {
           "fileUris": [
             "[variables('f5CloudLibsTagUrl')]",
-             "[variables('runScriptsUrl')]"
+            "[variables('runScriptsUrl')]"
           ]
         },
         "protectedSettings": {
