@@ -113,9 +113,8 @@
       "allowedValues": [
         1,
         2,
-        10,
-        25,
-        50
+        5,
+        9
       ],
       "maxValue": 50,
       "minValue": 1,
