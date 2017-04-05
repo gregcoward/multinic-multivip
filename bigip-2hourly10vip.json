@@ -341,7 +341,7 @@
             "name": "loadBalancerFrontEnd-data3",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID')['2'].value]"
+                "id": "[variables('publicIPID')['3'].value]"
               }
             }
           },
@@ -349,7 +349,7 @@
             "name": "loadBalancerFrontEnd-data4",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID')['3'].value]"
+                "id": "[variables('publicIPID')['4'].value]"
               }
             }
           },
