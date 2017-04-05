@@ -266,6 +266,161 @@
         "value": "[resourceId('Microsoft.Network/loadBalancers',concat(parameters('loadBalancerName'),'-data50'))]"
       }
     },
+    "publicIPID": {
+      "1": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-1'))]"
+      },
+      "2": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-2'))]"
+      },
+      "3": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-3'))]"
+      },
+      "4": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-4'))]"
+      },
+      "5": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-5'))]"
+      },
+      "6": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-6'))]"
+      },
+      "7": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-7'))]"
+      },
+      "8": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-8'))]"
+      },
+      "9": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-9'))]"
+      },
+      "10": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-10'))]"
+      },
+      "11": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-11'))]"
+      },
+      "12": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-12'))]"
+      },
+      "13": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-13'))]"
+      },
+      "14": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-14'))]"
+      },
+      "15": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-15'))]"
+      },
+      "16": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-16'))]"
+      },
+      "17": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-17'))]"
+      },
+      "18": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-18'))]"
+      },
+      "19": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-19'))]"
+      },
+      "20": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-20'))]"
+      },
+      "21": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-21'))]"
+      },
+      "22": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-22'))]"
+      },
+      "23": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-23'))]"
+      },
+      "24": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-24'))]"
+      },
+      "25": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-25'))]"
+      },
+      "26": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-26'))]"
+      },
+      "27": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-27'))]"
+      },
+      "28": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-28'))]"
+      },
+      "29": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-29'))]"
+      },
+      "30": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-30'))]"
+      },
+      "31": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-31'))]"
+      },
+      "32": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-32'))]"
+      },
+      "33": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-33'))]"
+      },
+      "34": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-34'))]"
+      },
+      "35": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-35'))]"
+      },
+      "36": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-36'))]"
+      },
+      "37": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-37'))]"
+      },
+      "38": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-38'))]"
+      },
+      "39": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-39'))]"
+      },
+      "40": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-40'))]"
+      },
+      "41": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-41'))]"
+      },
+      "42": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-42'))]"
+      },
+      "43": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-43'))]"
+      },
+      "44": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-44'))]"
+      },
+      "45": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-45'))]"
+      },
+      "46": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-46'))]"
+      },
+      "47": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-47'))]"
+      },
+      "48": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-48'))]"
+      },
+      "49": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-49'))]"
+      },
+      "50": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-50'))]"
+      },
+      "51": {
+        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-51'))]"
+      }
+    },
     "guiMgtID": "[concat(variables('mgmtLbID'),'/inboundNatRules/guimgt')]",
     "sshMgtID": "[concat(variables('mgmtlbID'),'/inboundNatRules/sshmgt')]",
     "frontEndIPConfigID": "[concat(variables('mgmtLbID'),'/frontendIPConfigurations/loadBalancerFrontEnd-mgmt')]",
@@ -277,6 +432,124 @@
   "resources": [
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "dependsOn": [
+      ],
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "LoadBalancer"
+      },
+      "name": "[concat(parameters('loadBalancerName'),'-mgmt')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID')['1'].value]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackEnd"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "dependsOn": [
+      ],
+      "copy": {
+        "count": "[parameters('numCopies')]",
+        "name": "vipcopy"
+      },
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "LoadBalancer"
+      },
+      "name": "[concat(parameters('loadBalancerName'),'-data',copyIndex(1))]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID')[string(copyIndex(2))].value]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "Name": "data-http-80",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/backendAddressPools/loadBalancerBackEnd')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/probes/tcp-80')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 15
+            }
+          },
+          {
+            "Name": "data-https-443",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/backendAddressPools/loadBalancerBackEnd')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data',copyIndex(1)), '/probes/tcp-443')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 443,
+              "backendPort": 443,
+              "idleTimeoutInMinutes": 15
+            }
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "tcp-80"
+          },
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 443,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "tcp-443"
+          }
+        ]
+      }
+    }
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers/inboundNatRules",
       "name": "[concat(parameters('loadBalancerName'),'-mgmt/guimgt', copyIndex(1))]",
       "location": "[parameters('location')]",
@@ -285,6 +558,7 @@
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
@@ -306,6 +580,7 @@
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
@@ -562,7 +837,7 @@
         "[concat('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'),'-data-',copyindex(1))]"
       ],
       "plan": {
-        "name":  "[variables('skuToUse')]", 
+        "name": "[variables('skuToUse')]",
         "publisher": "f5-networks",
         "product": "f5-big-ip-hourly"
       },
@@ -640,7 +915,7 @@
         "settings": {
           "fileUris": [
             "[variables('f5CloudLibsTagUrl')]",
-             "[variables('runScriptsUrl')]"
+            "[variables('runScriptsUrl')]"
           ]
         },
         "protectedSettings": {
@@ -668,7 +943,7 @@
         "settings": {
           "fileUris": [
             "[variables('f5CloudLibsTagUrl')]",
-             "[variables('runScriptsUrl')]"
+            "[variables('runScriptsUrl')]"
           ]
         },
         "protectedSettings": {

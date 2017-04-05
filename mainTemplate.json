@@ -479,31 +479,6 @@
     },
     {
       "apiVersion": "[variables('apiVersionTemplate')]",
-      "name": "loadBalLinkedTemplate",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-         "publicIpLinkedTemplate"
-      ],
-      "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "uri": "[variables('loadBalTemplateLink')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "apiVersionCompute": { "value": "[variables('apiVersionCompute')]" },
-          "apiVersionNetwork": { "value": "[variables('apiVersionNetwork')]" },
-          "apiVersionStorage": { "value": "[variables('apiVersionStorage')]" },
-          "numCopies": { "value": "[parameters('numCopies')]" },
-          "numberOfInstances": { "value": "[parameters('numberOfInstances')]" },
-          "location": { "value": "[variables('location')]" },
-          "publicIPName": { "value": "[parameters('publicIPName')]" },
-          "loadBalancerName": { "value": "[variables('loadBalancerName')]" }
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('apiVersionTemplate')]",
       "name": "linkedTemplate",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
@@ -511,7 +486,7 @@
         "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))]",
-        "loadBalLinkedTemplate"
+        "publicIpLinkedTemplate"
       ],
       "properties": {
         "mode": "incremental",
