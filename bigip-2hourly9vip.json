@@ -547,7 +547,7 @@
           }
         ]
       }
-    }
+    },
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers/inboundNatRules",
