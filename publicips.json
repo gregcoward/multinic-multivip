@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "apiVersionCompute": {
+      "type": "string",
+      "metadata": {
+        "description": "The compute api version"
+      }
+    },
+    "apiVersionNetwork": {
+      "type": "string",
+      "metadata": {
+        "description": "The network api version"
+      }
+    },
+    "apiVersionStorage": {
+      "type": "string",
+      "metadata": {
+        "description": "The storage api version"
+      }
+    },
+    "location": {
+      "type": "string"
+    },
+    "publicIpName": {
+      "type": "string"
+    },
+    "numCopies": {
+      "type": "int"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "copy": {
+        "count": "[add(parameters('numCopies'), 1)]",
+        "name": "copycount"
+      },
+      "name": "[concat(parameters('publicIpName'),'-',copyIndex(1))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 30,
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('publicIPName'),'-',copyindex(1))]"
+        }
+      }
+    }
+  ],
+  "outputs": { }
+}
