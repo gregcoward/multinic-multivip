@@ -36,8 +36,24 @@
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat(parameters('publicIpName'),'-mgmt')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 30,
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('publicIPName'),'-mgmt')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[parameters('apiVersionNetwork')]",
+      "type": "Microsoft.Network/publicIPAddresses",
       "copy": {
-        "count": "[add(parameters('numCopies'), 1)]",
+        "count": "[parameters('numCopies')]",
         "name": "copycount"
       },
       "name": "[concat(parameters('publicIpName'),'-',copyIndex(1))]",
