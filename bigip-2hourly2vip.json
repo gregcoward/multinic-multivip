@@ -130,9 +130,6 @@
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-1')]",
-        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-2')]",
-        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPName'),'-', add(parameters('numCopies'),1))]"
       ],
       "location": "[parameters('location')]",
       "tags": {
