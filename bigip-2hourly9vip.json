@@ -192,7 +192,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-mgmt",
+            "name": "loadBalancerFrontEnd-data2",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID3')]"
@@ -200,7 +200,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-data1",
+            "name": "loadBalancerFrontEnd-data3",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID4')]"
@@ -208,7 +208,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-mgmt",
+            "name": "loadBalancerFrontEnd-data4",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID5')]"
@@ -216,7 +216,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-data1",
+            "name": "loadBalancerFrontEnd-data5",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID6')]"
@@ -224,7 +224,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-data2",
+            "name": "loadBalancerFrontEnd-data6",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID7')]"
@@ -232,7 +232,7 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-mgmt",
+            "name": "loadBalancerFrontEnd-data7",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID8')]"
@@ -240,10 +240,18 @@
             }
           },
           {
-            "name": "loadBalancerFrontEnd-data1",
+            "name": "loadBalancerFrontEnd-data8",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('publicIPID9')]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd-data9",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('publicIPID10')]"
               }
             }
           }
