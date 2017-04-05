@@ -326,8 +326,6 @@
         "displayName": "NetworkInterface"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt','/inboundNatRules/guimgt',copyindex(1))]",
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt','/inboundNatRules/sshmgt',copyindex(1))]"
       ],
       "copy": {
         "count": "[parameters('numberOfInstances')]",
