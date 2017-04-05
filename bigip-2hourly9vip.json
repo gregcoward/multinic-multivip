@@ -285,7 +285,6 @@
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
@@ -307,7 +306,6 @@
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
