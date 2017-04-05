@@ -194,34 +194,34 @@
     },
     "dataLB": {
       "1": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data1')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data1'))]"
       },
       "2": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2'))]"
       },
       "3": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data3')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data3'))]"
       },
       "4": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data4')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data4'))]"
       },
       "5": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data5')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data5'))]"
       },
       "6": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data6')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data6'))]"
       },
       "7": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data7')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data7'))]"
       },
       "8": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data8')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data8'))]"
       },
       "9": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data9')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers',  concat(parameters('loadBalancerName'),'-data9'))]"
       },
       "10": {
-        "value": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data10')]"
+        "value": "[resourceId('Microsoft.Network/loadBalancers', concat( parameters('loadBalancerName'),'-data10'))]"
       }
     }
   },
