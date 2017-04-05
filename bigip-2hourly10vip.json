@@ -860,14 +860,14 @@
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers/inboundNatRules",
-      "name": "[concat(parameters('loadBalancerName'),'/guimgt', copyIndex(1))]",
+      "name": "[concat(parameters('loadBalancerName'),'-mgmt','/guimgt', copyIndex(1))]",
       "location": "[parameters('location')]",
       "copy": {
         "name": "lbNatLoop",
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
@@ -882,14 +882,14 @@
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/loadBalancers/inboundNatRules",
-      "name": "[concat(parameters('loadBalancerName'),'/sshmgt', copyIndex(1))]",
+      "name": "[concat(parameters('loadBalancerName'),'-mgmt','/sshmgt', copyIndex(1))]",
       "location": "[parameters('location')]",
       "copy": {
         "name": "lbNatLoop",
         "count": "[parameters('numberOfInstances')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt')]"
       ],
       "properties": {
         "frontendIPConfiguration": {
@@ -958,7 +958,6 @@
         "displayName": "NetworkInterface"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'))]"
       ],
       "copy": {
         "count": "[parameters('numberOfInstances')]",
