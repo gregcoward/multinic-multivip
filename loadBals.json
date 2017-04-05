@@ -242,7 +242,7 @@
             "name": "loadBalancerFrontEnd",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID')[copyIndex(2)].value]"
+                "id": "[variables('publicIPID')[string(copyIndex(2))].value]"
               }
             }
           }
