@@ -890,38 +890,6 @@
             }
           },
           {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "static",
-              "privateIPAddress": "[concat(parameters('extIpAddress'),copyIndex(1),'1')]",
-              "primary": true,
-              "subnet": {
-                "id": "[parameters('extSubnetRef')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data1')]"
-                }
-              ]
-            }
-          },
-          {
-            "name": "ipconfig2",
-            "properties": {
-              "privateIPAllocationMethod": "static",
-              "privateIPAddress": "[concat(parameters('extIpAddress'),copyIndex(1),'2')]",
-              "primary": false,
-              "subnet": {
-                "id": "[parameters('extSubnetRef')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data2')]"
-                }
-              ]
-            }
-          },
-          {
             "name": "ipconfig3",
             "properties": {
               "privateIPAllocationMethod": "static",
@@ -980,7 +948,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(variables('lbID-data2'), '/backendAddressPools/', 'loadBalancerBackEnd-data6')]"
+                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data6')]"
                 }
               ]
             }
@@ -996,7 +964,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(variables('lbID-data2'), '/backendAddressPools/', 'loadBalancerBackEnd-data7')]"
+                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data7')]"
                 }
               ]
             }
@@ -1037,7 +1005,7 @@
             "name": "ipconfig10",
             "properties": {
               "privateIPAllocationMethod": "static",
-              "privateIPAddress": "[concat(parameters('extIpAddress'),'20')]",
+              "privateIPAddress": "[concat(parameters('extIpAddress'),copyIndex(1),'10')]",
               "primary": false,
               "subnet": {
                 "id": "[parameters('extSubnetRef')]"
