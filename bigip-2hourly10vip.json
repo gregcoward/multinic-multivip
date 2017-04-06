@@ -948,7 +948,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data6')]"
+                  "id": "[concat(variables('lbID-data2'), '/backendAddressPools/', 'loadBalancerBackEnd-data6')]"
                 }
               ]
             }
@@ -964,7 +964,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(variables('lbID-data1'), '/backendAddressPools/', 'loadBalancerBackEnd-data7')]"
+                  "id": "[concat(variables('lbID-data2'), '/backendAddressPools/', 'loadBalancerBackEnd-data7')]"
                 }
               ]
             }
