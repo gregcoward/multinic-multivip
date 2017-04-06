@@ -415,7 +415,6 @@
         "displayName": "NetworkInterface"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', parameters('loadBalancerName'),'-mgmt',copyIndex(1))]"
       ],
       "copy": {
         "count": "[parameters('numberOfInstances')]",
