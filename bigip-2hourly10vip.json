@@ -249,7 +249,7 @@
               },
               "protocol": "Tcp",
               "frontendPort": 80,
-              "backendPort": 80,)
+              "backendPort": 80,
               "idleTimeoutInMinutes": 15
             }
           },
