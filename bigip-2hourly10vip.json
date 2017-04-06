@@ -350,7 +350,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/frontendIpConfigurations/loadBalancerFrontEnd-data4')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/backendAddressPools/loadBalancerBackEnd-data4')]"
               },
               "probe": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/probes/tcp-80')]"
@@ -368,7 +368,7 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/frontendIpConfigurations/loadBalancerFrontEnd-data4')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/backendAddressPools/loadBalancerBackEnd-data1')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/backendAddressPools/loadBalancerBackEnd-data4')]"
               },
               "probe": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data1')), '/probes/tcp-443')]"
@@ -513,13 +513,13 @@
             "Name": "data1-http-80",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data6')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data6')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data6')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data6')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-80')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -531,13 +531,13 @@
             "Name": "data1-http-443",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data6')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data6')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data6')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data6')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-443')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
@@ -549,13 +549,13 @@
             "Name": "data2-http-80",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data7')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data7')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data7')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data7')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-80')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -567,13 +567,13 @@
             "Name": "data2-http-443",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data7')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data7')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data7')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data7')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-443')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
@@ -585,13 +585,13 @@
             "Name": "data3-http-80",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data8')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data8')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data8')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data8')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-80')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -603,13 +603,13 @@
             "Name": "data3-http-443",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data8')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data8')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data8')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data8')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-443')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
@@ -621,13 +621,13 @@
             "Name": "data4-http-80",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data9')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data9')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data9')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data9')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-80')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -639,13 +639,13 @@
             "Name": "data4-http-443",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data9')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data9')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data9')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data9')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-443')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
@@ -657,13 +657,13 @@
             "Name": "data5-http-80",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data10')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data10')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data10')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data10')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-80')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-80')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
@@ -675,13 +675,13 @@
             "Name": "data5-http-443",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/frontendIpConfigurations/loadBalancerFrontEnd-data10')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/frontendIpConfigurations/loadBalancerFrontEnd-data10')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/backendAddressPools/loadBalancerBackEnd-data10')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/backendAddressPools/loadBalancerBackEnd-data10')]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'),'-data2'), '/probes/tcp-443')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', concat(parameters('loadBalancerName'),'-data2')), '/probes/tcp-443')]"
               },
               "protocol": "Tcp",
               "frontendPort": 443,
