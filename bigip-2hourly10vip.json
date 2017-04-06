@@ -180,7 +180,7 @@
             "name": "loadBalancerFrontEnd-data1",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID1')"
+                "id": "[variables('publicIPID1')]"
               }
             }
           },
@@ -188,7 +188,7 @@
             "name": "loadBalancerFrontEnd-data2",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID2')"
+                "id": "[variables('publicIPID2')]"
               }
             }
           },
@@ -196,7 +196,7 @@
             "name": "loadBalancerFrontEnd-data3",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('publicIPID3')"
+                "id": "[variables('publicIPID3')]"
               }
             }
           },
