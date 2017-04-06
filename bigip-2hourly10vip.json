@@ -264,9 +264,6 @@
       },
       "50": {
         "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-50'))]"
-      },
-      "51": {
-        "value": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-51'))]"
       }
     },
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd-mgmt')]",
