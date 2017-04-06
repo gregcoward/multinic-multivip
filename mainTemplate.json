@@ -473,6 +473,7 @@
           "apiVersionNetwork": { "value": "[variables('apiVersionNetwork')]" },
           "apiVersionStorage": { "value": "[variables('apiVersionStorage')]" },
           "numCopies": { "value": "[parameters('numCopies')]" },
+          "numberOfInstances": { "value": "[parameters('numberOfInstances')]" },
           "location": { "value": "[variables('location')]" },
           "publicIPName": { "value": "[parameters('publicIPName')]" }
         }

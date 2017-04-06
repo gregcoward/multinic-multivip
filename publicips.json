@@ -28,6 +28,9 @@
     },
     "numCopies": {
       "type": "int"
+    },
+    "numberOfInstances": {
+      "type": "int"
     }
   },
   "variables": {
@@ -36,7 +39,11 @@
     {
       "apiVersion": "[parameters('apiVersionNetwork')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(parameters('publicIpName'),'-mgmt')]",
+      "copy": {
+        "count": "[parameters('numberOfInstances')]",
+        "name": "copycount"
+      },
+      "name": "[concat(parameters('publicIpName'),'-mgmt',copyIndex(1))]",
       "location": "[parameters('location')]",
       "tags": {
         "displayName": "PublicIPAddress"
