@@ -52,7 +52,7 @@
         "idleTimeoutInMinutes": 30,
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[concat(parameters('publicIPName'),'-mgmt')]"
+          "domainNameLabel": "[concat(parameters('publicIPName'),'-mgmt',copyIndex(1))]"
         }
       }
     },
