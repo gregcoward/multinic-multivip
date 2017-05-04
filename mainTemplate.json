@@ -109,7 +109,7 @@
     },
     "numCopies": {
       "type": "int",
-      "defaultValue": 2,
+      "defaultValue": 1,
       "allowedValues": [
         1,
         2,
@@ -117,10 +117,81 @@
         4,
         5
       ],
-      "maxValue": 50,
+      "maxValue": 5,
       "minValue": 1,
       "metadata": {
-        "description": "The number of VS/WAF copies to deploy for purposes of load testing, Selection limited to 1, 2, 10, 25, or 50 instances."
+        "description": "The number of VS private/public IP combos to deploy for purposes of public facing virtuals ( 1 - 5)."
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "Vnet",
+      "metadata": {
+        "description": "Specify the virtual network name."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.0.0/16",
+      "metadata": {
+        "description": "Specify the virtual network address space."
+      }
+    },
+    "mgmtSubnetName": {
+      "type": "string",
+      "defaultValue": "management",
+      "metadata": {
+        "description": "Specify the virtual subnet name wher the BIG-IP will reside."
+      }
+    },
+    "mgmtSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.1.0/24",
+      "metadata": {
+        "description": "Specify the virtual subnet address space."
+      }
+    },
+    "intSubnetName": {
+      "type": "string",
+      "defaultValue": "internal",
+      "metadata": {
+        "description": "Specify the virtual subnet name wher the BIG-IP will reside."
+      }
+    },
+    "intSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.2.0/24",
+      "metadata": {
+        "description": "Specify the virtual subnet address space."
+      }
+    },
+    "extSubnetName": {
+      "type": "string",
+      "defaultValue": "external",
+      "metadata": {
+        "description": "Specify the virtual subnet name wher the BIG-IP will reside."
+      }
+    },
+    "extSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.10.3.0/24",
+      "metadata": {
+        "description": "Specify the virtual subnet address space."
+      }
+    },
+    "vnetNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": ["new", "existing"],
+      "metadata": {
+        "description": "New or Existing Virtual Network"
+      }
+    },
+    "vnetExistingRGName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Existing Virtual Network name"
       }
     },
     "restrictedSrcAddress": {
@@ -145,25 +216,18 @@
     "pubIpTemplateLink": "[concat(variables('baseUrl'), '/publicips.json')]",
     "loadBalTemplateLink": "[concat(variables('baseUrl'), '/loadBals.json')]",
     "bigipTemplateLink": "[concat(variables('baseUrl'), '/bigip-',parameters('numberOfInstances'),parameters('byolOrHourly'), parameters('numCopies'), 'vip.json')]",
-    "virtualNetworkName": "VNet",
-    "vnetAddressPrefix": "10.10.0.0/16",
-    "mgmtSubnetName": "mgmt",
-    "mgmtSubnetPrefix": "10.10.1.0/24",
+    "vnetLink": "[concat(variables('baseUrl'),'/',parameters('vnetNewOrExisting'),'vnet.json')]",
     "mgmtIpAddress": "10.10.1.",
-    "mgmtsubnetRef": "[concat(variables('vnetID'),'/subnets/',variables('mgmtSubnetName'))]",
-    "intSubnetName": "internal",
-    "intSubnetPrefix": "10.10.2.0/24",
+    "mgmtsubnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('mgmtSubnetName'))]",
     "intIpAddress": "10.10.2.",
-    "intsubnetRef": "[concat(variables('vnetID'),'/subnets/',variables('intSubnetName'))]",
-    "extSubnetName": "external",
-    "extSubnetPrefix": "10.10.3.0/24",
+    "intsubnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('intSubnetName'))]",
     "extIpAddress": "10.10.3.",
-    "extsubnetRef": "[concat(variables('vnetID'),'/subnets/',variables('extSubnetName'))]",
+    "extsubnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('extSubnetName'))]",
     "nicNamePrefix": "[concat(parameters('publicIpName'),'-nic')]",
     "loadBalancerName": "[concat(parameters('publicIpName'),'-lb')]",
     "availabilitySetName": "[concat(parameters('publicIpName'),'-as')]",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('publicIpName'),'-nsg'))]",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
     "instanceTypeMap": {
       "Standard_A3": {
         "storageAccountType": "Standard_LRS"
@@ -343,39 +407,50 @@
       }
     },
     {
-      "apiVersion": "[variables('apiVersionNetwork')]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
-      "tags": {
-        "displayName": "VirtualNetwork"
-      },
+      "apiVersion": "2015-01-01",
+      "name": "virtualNetworkTemplate",
+      "type": "Microsoft.Resources/deployments",
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('vnetAddressPrefix')]"
-          ]
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[variables('vnetLink')]",
+          "contentVersion": "1.0.0.0"
         },
-        "subnets": [
-          {
-            "name": "[variables('mgmtSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('mgmtSubnetPrefix')]"
-            }
+        "parameters": {
+          "location": {
+            "value": "[variables('location')]"
           },
-          {
-            "name": "[variables('intSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('intSubnetPrefix')]"
-            }
+          "apiVersionNetwork": {
+            "value": "[variables('apiVersionNetwork')]"
           },
-          {
-            "name": "[variables('extSubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('extSubnetPrefix')]"
-            }
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          },
+          "vnetAddressPrefix": {
+            "value": "[parameters('vnetAddressPrefix')]"
+          },
+          "mgmtSubnetName": {
+            "value": "[parameters('mgmtSubnetName')]"
+          },
+          "mgmtSubnetAddressPrefix": {
+            "value": "[parameters('mgmtSubnetAddressPrefix')]"
+          },
+          "intSubnetName": {
+            "value": "[parameters('intSubnetName')]"
+          },
+          "intSubnetAddressPrefix": {
+            "value": "[parameters('intSubnetAddressPrefix')]"
+          },
+          "extSubnetName": {
+            "value": "[parameters('extSubnetName')]"
+          },
+          "extSubnetAddressPrefix": {
+            "value": "[parameters('extSubnetAddressPrefix')]"
+          },
+          "vnetExistingRGName": {
+            "value": "[parameters('vnetExistingRGName')]"
           }
-        ]
+        }
       }
     },
     {
@@ -484,11 +559,11 @@
       "name": "linkedTemplate",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('diagStorageAccountName'))]",
-        "publicIpLinkedTemplate"
+        "publicIpLinkedTemplate",
+        "virtualNetworkTemplate"
       ],
       "properties": {
         "mode": "incremental",
@@ -520,7 +595,7 @@
           "adminPassword": { "value": "[parameters('adminPassword')]" },
           "loadBalancerName": { "value": "[variables('loadbalancerName')]" },
           "publicIPName": { "value": "[parameters('publicIPName')]" },
-          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+          "virtualNetworkName": { "value": "[parameters('vnetName')]" },
           "availabilitySetName": { "value": "[variables('availabilitySetName')]" },
           "newStorageAccountName": { "value": "[variables('newStorageAccountName')]" },
           "diagStorageAccountName": { "value": "[variables('diagStorageAccountName')]" },

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location where to create the resources"
+      }
+    },
+    "apiVersionNetwork": {
+      "type": "string",
+      "metadata": {
+        "description": "API version for network resources"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Virtual Network"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address Prefix for Virtual Network"
+      }
+    },
+    "mgmtSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of mgmt Subnet"
+      }
+    },
+    "mgmtSubnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address Prefix for mgmt Subnet"
+      }
+    },
+    "intSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of internal facing Subnet"
+      }
+    },
+    "intSubnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address Prefix for internal facing Subnet"
+      }
+    },
+    "extSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of public-facing Subnet"
+      }
+    },
+    "extSubnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address Prefix for public-facing Subnet"
+      }
+    },
+    "vnetExistingRGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group for the existing Virtual Network"
+      }
+    }
+  },
+    "variables": {
+      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+      "subnet1": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]"
+    },
+    "resources": [
+      {
+        "apiVersion": "[parameters('apiVersionNetwork')]",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[parameters('vnetName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[parameters('vnetAddressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[parameters('mgmtSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('mgmtSubnetAddressPrefix')]"
+              }
+            },
+            {
+              "name": "[parameters('intSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('intSubnetAddressPrefix')]"
+              }
+            },
+            {
+              "name": "[parameters('extSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('extSubnetAddressPrefix')]"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "outputs": {
+      "vnetId": {
+        "value": "[variables('vnetID')]",
+        "type": "string"
+      }
+    }
+  }
