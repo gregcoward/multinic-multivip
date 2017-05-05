@@ -574,11 +574,8 @@
         "parameters": {
           "f5NamePrefix": { "value": "[variables('f5NamePrefix')]" },
           "mgmtIpAddress": { "value": "[variables('mgmtIpAddress')]" },
-          "mgmtSubnetRef": { "value": "[variables('mgmtSubnetRef')]" },
           "intIpAddress": { "value": "[variables('intIpAddress')]" },
-          "intSubnetRef": { "value": "[variables('intSubnetRef')]" },
           "extIpAddress": { "value": "[variables('extIpAddress')]" },
-          "extSubnetRef": { "value": "[variables('extSubnetRef')]" },
           "nicNamePrefix": { "value": "[variables('nicNamePrefix')]" },
           "nsgID": { "value": "[variables('nsgID')]" },
           "apiVersionCompute": { "value": "[variables('apiVersionCompute')]" },
@@ -600,7 +597,10 @@
           "newStorageAccountName": { "value": "[variables('newStorageAccountName')]" },
           "diagStorageAccountName": { "value": "[variables('diagStorageAccountName')]" },
           "imageName": { "value": "[parameters('imageName')]" },
-          "licensedBandwidth": { "value": "[parameters('licensedBandwidth')]" }
+          "licensedBandwidth": { "value": "[parameters('licensedBandwidth')]" },
+          "mgmtSubnetRef": { "value": "[concat(reference('virtualNetworkTemplate').outputs.vnetID.value,'/subnets/',parameters('mgmtSubnetName'))]" },
+          "intSubnetRef": { "value": "[concat(reference('virtualNetworkTemplate').outputs.vnetID.value,'/subnets/',parameters('intSubnetName'))]" },
+          "extSubnetRef": { "value": "[concat(reference('virtualNetworkTemplate').outputs.vnetID.value,'/subnets/',parameters('extSubnetName'))]" }
         }
       }
     }
