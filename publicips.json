@@ -71,7 +71,6 @@
         "idleTimeoutInMinutes": 30,
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[concat(parameters('publicIPName'),'-',copyindex(1))]"
         }
       }
     }
