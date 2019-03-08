@@ -51,8 +51,6 @@
       "properties": {
         "idleTimeoutInMinutes": 30,
         "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-        }
       }
     },
     {
