@@ -614,9 +614,9 @@
           "storageProfile": {
           "imageReference": {
             "publisher": "f5-networks",
-            "offer": "f5-big-ip",
+            "offer": "f5-big-ip-best",
             "sku": "f5-bigip-virtual-edition-best-byol",
-            "version": "12.1.21"
+            "version": "latest"
           },
             "osDisk": {
               "name": "[concat(parameters('f5NamePrefix'),'osdisk',copyIndex(1))]",
